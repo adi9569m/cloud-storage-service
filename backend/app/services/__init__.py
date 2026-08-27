@@ -1,1 +1,6 @@
-"""Business logic and external service integration package."""
+"""Services package containing business logic operations."""
+
+from app.services.user_service import UserService
+from app.services.auth_service import AuthService
+
+__all__ = ["UserService", "AuthService"]
