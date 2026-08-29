@@ -1,7 +1,17 @@
 """Common reusable schemas and response models."""
 
+import uuid
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class BreadcrumbItem(BaseModel):
+    """Breadcrumb trail entry representing hierarchical folder navigation."""
+
+    id: Optional[uuid.UUID] = Field(None, description="Folder UUID. None indicates Root.")
+    name: str = Field(..., description="Folder display name or 'My Drive' for Root.")
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class MessageResponse(BaseModel):
