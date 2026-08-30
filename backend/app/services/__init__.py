@@ -6,6 +6,10 @@ from app.services.activity_service import ActivityService
 from app.services.folder_service import FolderService
 from app.services.storage_service import StorageService
 from app.services.file_service import FileService
+from app.services.share_service import ShareService
+from app.services.link_share_service import LinkShareService
+from app.services.star_service import StarService
+from app.services.trash_service import TrashService
 
 __all__ = [
     "UserService",
@@ -14,4 +18,8 @@ __all__ = [
     "FolderService",
     "StorageService",
     "FileService",
+    "ShareService",
+    "LinkShareService",
+    "StarService",
+    "TrashService",
 ]

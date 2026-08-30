@@ -45,6 +45,37 @@ from app.schemas.folder import (
     FolderTreeItem,
     FolderContentsResponse,
 )
+from app.schemas.share import (
+    ShareCreate,
+    ShareUpdate,
+    ShareResponse,
+    SharedItemResponse,
+    SharedWithMeResponse,
+    SharedByMeResponse,
+)
+from app.schemas.link_share import (
+    LinkShareCreate,
+    LinkShareUpdate,
+    LinkShareResponse,
+    PublicLinkAccessRequest,
+    PublicLinkAccessResponse,
+    PublicFolderContentsResponse,
+)
+from app.schemas.star import (
+    StarToggleRequest,
+    StarToggleResponse,
+    StarResponse,
+    StarredListResponse,
+)
+from app.schemas.activity import (
+    ActivityResponse,
+    ActivityListResponse,
+)
+from app.schemas.trash import (
+    TrashListResponse,
+    TrashRestoreAllResponse,
+    TrashEmptyResponse,
+)
 
 __all__ = [
     "UserBase",
@@ -82,4 +113,25 @@ __all__ = [
     "FolderDetailResponse",
     "FolderTreeItem",
     "FolderContentsResponse",
+    "ShareCreate",
+    "ShareUpdate",
+    "ShareResponse",
+    "SharedItemResponse",
+    "SharedWithMeResponse",
+    "SharedByMeResponse",
+    "LinkShareCreate",
+    "LinkShareUpdate",
+    "LinkShareResponse",
+    "PublicLinkAccessRequest",
+    "PublicLinkAccessResponse",
+    "PublicFolderContentsResponse",
+    "StarToggleRequest",
+    "StarToggleResponse",
+    "StarResponse",
+    "StarredListResponse",
+    "ActivityResponse",
+    "ActivityListResponse",
+    "TrashListResponse",
+    "TrashRestoreAllResponse",
+    "TrashEmptyResponse",
 ]
