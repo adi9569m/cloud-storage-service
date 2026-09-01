@@ -24,7 +24,9 @@ from app.schemas.file import (
     FileVersionInitResponse,
     FileVersionResponse,
 )
+from app.schemas.preview import TextContentResponse
 from app.services.file_service import FileService
+from app.services.preview_service import PreviewService
 
 router = APIRouter(prefix="/files", tags=["Files"])
 
@@ -601,4 +603,49 @@ def permanent_delete_file(
         file_id=file_id,
         user_id=current_user.id,
         ip_address=ip_address,
+    )
+
+
+# ============================================================================
+# 8. File Content Previews & Text Inspection (Day 6)
+# ============================================================================
+
+
+@router.get(
+    "/{file_id}/preview",
+    summary="Stream file preview",
+    description="Stream file inline with HTTP 206 Range support for audio/video playback and browser rendering.",
+)
+def preview_file(
+    file_id: uuid.UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Inline file preview streaming endpoint supporting byte-range media seeking."""
+    range_header = request.headers.get("Range")
+    return PreviewService.get_file_preview_response(
+        db=db,
+        file_id=file_id,
+        user_id=current_user.id,
+        range_header=range_header,
+    )
+
+
+@router.get(
+    "/{file_id}/text-content",
+    response_model=TextContentResponse,
+    summary="Get text file content",
+    description="Retrieve raw text or code content for in-browser file viewing or code editor inspection.",
+)
+def get_text_content(
+    file_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> TextContentResponse:
+    """Read and decode text file content with line counts and encoding detection."""
+    return PreviewService.get_text_content(
+        db=db,
+        file_id=file_id,
+        user_id=current_user.id,
     )

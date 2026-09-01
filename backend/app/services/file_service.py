@@ -157,6 +157,10 @@ class FileService:
         ip_address: Optional[str] = None,
     ) -> FileUploadInitResponse:
         """Initiate presigned upload flow by creating pending metadata and signed URL."""
+        # Validate storage quota
+        from app.services.storage_analytics_service import StorageAnalyticsService
+        StorageAnalyticsService.validate_quota_available(db=db, user_id=user_id, incoming_bytes=init_in.size_bytes)
+
         # 1. Validate parent folder if specified
         if init_in.folder_id is not None:
             parent = FolderService.get_folder_by_id(
@@ -310,6 +314,10 @@ class FileService:
         ip_address: Optional[str] = None,
     ) -> FileResponse:
         """Direct multipart binary file upload creating File and FileVersion v1."""
+        # Validate storage quota
+        from app.services.storage_analytics_service import StorageAnalyticsService
+        StorageAnalyticsService.validate_quota_available(db=db, user_id=user_id, incoming_bytes=len(file_bytes))
+
         # 1. Validate parent folder if specified
         if folder_id is not None:
             parent = FolderService.get_folder_by_id(
@@ -413,6 +421,9 @@ class FileService:
         ip_address: Optional[str] = None,
     ) -> FileVersionInitResponse:
         """Initiate presigned upload for a new version of an existing file."""
+        from app.services.storage_analytics_service import StorageAnalyticsService
+        StorageAnalyticsService.validate_quota_available(db=db, user_id=user_id, incoming_bytes=version_in.size_bytes)
+
         file = cls.get_file_by_id(db=db, file_id=file_id, user_id=user_id, include_deleted=False)
         next_ver = cls.get_current_version_number(db, file.id) + 1
 
@@ -504,6 +515,9 @@ class FileService:
         ip_address: Optional[str] = None,
     ) -> FileResponse:
         """Direct multipart upload for a new version of an existing file."""
+        from app.services.storage_analytics_service import StorageAnalyticsService
+        StorageAnalyticsService.validate_quota_available(db=db, user_id=user_id, incoming_bytes=len(file_bytes))
+
         file = cls.get_file_by_id(db=db, file_id=file_id, user_id=user_id, include_deleted=False)
         next_ver = cls.get_current_version_number(db, file.id) + 1
 

@@ -3,6 +3,7 @@
 from typing import List, Optional
 import uuid
 from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User
@@ -17,6 +18,7 @@ from app.schemas.folder import (
     FolderUpdate,
 )
 from app.services.folder_service import FolderService
+from app.services.batch_service import BatchService
 
 router = APIRouter(prefix="/folders", tags=["Folders"])
 
@@ -333,4 +335,34 @@ def permanent_delete_folder(
         folder_id=folder_id,
         user_id=current_user.id,
         ip_address=ip_address,
+    )
+
+
+@router.get(
+    "/{folder_id}/download-zip",
+    summary="Download folder as ZIP",
+    description="Stream an entire directory tree with all child files and nested subdirectories as a ZIP archive.",
+)
+def download_folder_zip(
+    folder_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Download folder and all its contents recursively as a ZIP archive."""
+    folder = FolderService.get_folder_by_id(db=db, folder_id=folder_id, user_id=current_user.id, include_deleted=False)
+    zip_buffer = BatchService.create_zip_archive(
+        db=db,
+        user_id=current_user.id,
+        file_ids=[],
+        folder_ids=[folder_id],
+    )
+    safe_name = folder.name.replace('"', "")
+    headers = {
+        "Content-Disposition": f'attachment; filename="{safe_name}.zip"',
+        "Content-Type": "application/zip",
+    }
+    return StreamingResponse(
+        zip_buffer,
+        media_type="application/zip",
+        headers=headers,
     )

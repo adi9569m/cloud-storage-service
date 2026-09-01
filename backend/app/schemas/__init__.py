@@ -76,6 +76,30 @@ from app.schemas.trash import (
     TrashRestoreAllResponse,
     TrashEmptyResponse,
 )
+from app.schemas.search import (
+    SearchTypeFilter,
+    SearchSortBy,
+    SearchSortOrder,
+    SearchResultItem,
+    SearchFacets,
+    SearchResponse,
+)
+from app.schemas.storage_analytics import (
+    StorageCategoryBreakdown,
+    StorageFileItem,
+    StorageUsageSummaryResponse,
+)
+from app.schemas.batch import (
+    BatchItemSelection,
+    BatchMoveRequest,
+    BatchCopyRequest,
+    BatchStarRequest,
+    BatchFailureDetail,
+    BatchOperationResult,
+)
+from app.schemas.preview import (
+    TextContentResponse,
+)
 
 __all__ = [
     "UserBase",
@@ -134,4 +158,20 @@ __all__ = [
     "TrashListResponse",
     "TrashRestoreAllResponse",
     "TrashEmptyResponse",
+    "SearchTypeFilter",
+    "SearchSortBy",
+    "SearchSortOrder",
+    "SearchResultItem",
+    "SearchFacets",
+    "SearchResponse",
+    "StorageCategoryBreakdown",
+    "StorageFileItem",
+    "StorageUsageSummaryResponse",
+    "BatchItemSelection",
+    "BatchMoveRequest",
+    "BatchCopyRequest",
+    "BatchStarRequest",
+    "BatchFailureDetail",
+    "BatchOperationResult",
+    "TextContentResponse",
 ]

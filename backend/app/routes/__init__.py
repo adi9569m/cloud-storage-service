@@ -9,6 +9,9 @@ from app.routes.link_share import router as link_share_router, public_router as 
 from app.routes.star import router as star_router
 from app.routes.activity import router as activity_router
 from app.routes.trash import router as trash_router
+from app.routes.search import router as search_router
+from app.routes.storage import router as storage_router
+from app.routes.batch import router as batch_router
 
 api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(auth_router)
@@ -20,6 +23,9 @@ api_router.include_router(public_link_router)
 api_router.include_router(star_router)
 api_router.include_router(activity_router)
 api_router.include_router(trash_router)
+api_router.include_router(search_router)
+api_router.include_router(storage_router)
+api_router.include_router(batch_router)
 
 __all__ = [
     "api_router",
@@ -32,4 +38,7 @@ __all__ = [
     "star_router",
     "activity_router",
     "trash_router",
+    "search_router",
+    "storage_router",
+    "batch_router",
 ]

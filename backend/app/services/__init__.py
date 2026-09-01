@@ -10,6 +10,10 @@ from app.services.share_service import ShareService
 from app.services.link_share_service import LinkShareService
 from app.services.star_service import StarService
 from app.services.trash_service import TrashService
+from app.services.search_service import SearchService
+from app.services.storage_analytics_service import StorageAnalyticsService
+from app.services.batch_service import BatchService
+from app.services.preview_service import PreviewService
 
 __all__ = [
     "UserService",
@@ -22,4 +26,8 @@ __all__ = [
     "LinkShareService",
     "StarService",
     "TrashService",
+    "SearchService",
+    "StorageAnalyticsService",
+    "BatchService",
+    "PreviewService",
 ]
