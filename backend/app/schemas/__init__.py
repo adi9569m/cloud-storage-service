@@ -100,6 +100,29 @@ from app.schemas.batch import (
 from app.schemas.preview import (
     TextContentResponse,
 )
+from app.schemas.tag import (
+    TagBase,
+    TagCreate,
+    TagUpdate,
+    TagResponse,
+    TagAttachRequest,
+    TagDetachRequest,
+    TaggedItemsResponse,
+)
+from app.schemas.comment import (
+    CommentCreate,
+    CommentUpdate,
+    CommentAuthor,
+    CommentResponse,
+    CommentListResponse,
+)
+from app.schemas.maintenance import (
+    MaintenanceCleanupRequest,
+    MaintenanceCleanupResult,
+    ExpiredLinksCleanupResult,
+    StorageSyncResult,
+    SystemStatusResponse,
+)
 
 __all__ = [
     "UserBase",
@@ -174,4 +197,21 @@ __all__ = [
     "BatchFailureDetail",
     "BatchOperationResult",
     "TextContentResponse",
+    "TagBase",
+    "TagCreate",
+    "TagUpdate",
+    "TagResponse",
+    "TagAttachRequest",
+    "TagDetachRequest",
+    "TaggedItemsResponse",
+    "CommentCreate",
+    "CommentUpdate",
+    "CommentAuthor",
+    "CommentResponse",
+    "CommentListResponse",
+    "MaintenanceCleanupRequest",
+    "MaintenanceCleanupResult",
+    "ExpiredLinksCleanupResult",
+    "StorageSyncResult",
+    "SystemStatusResponse",
 ]

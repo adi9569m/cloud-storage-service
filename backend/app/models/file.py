@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from app.models.share import Share
     from app.models.link_share import LinkShare
     from app.models.star import Star
+    from app.models.comment import Comment
 
 
 class File(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
@@ -24,8 +25,7 @@ class File(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     name: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
-        index=True,
-        doc="File name including extension (e.g. quarterly_report.pdf).",
+        doc="File name with extension (e.g. document.pdf).",
     )
     folder_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid,
@@ -33,36 +33,37 @@ class File(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
         nullable=True,
         default=None,
         index=True,
-        doc="Parent folder ID. Null indicates the root storage directory.",
+        doc="Parent folder ID. NULL represents root storage level.",
     )
     owner_id: Mapped[uuid.UUID] = mapped_column(
         Uuid,
         ForeignKey("users.id", ondelete="RESTRICT"),
         nullable=False,
         index=True,
-        doc="User ID of the file owner.",
+        doc="User ID who owns and created the file.",
     )
     mime_type: Mapped[str] = mapped_column(
         String(127),
         nullable=False,
         index=True,
-        doc="MIME type of the current active version (e.g. application/pdf, image/jpeg).",
+        doc="MIME type of the active file version.",
     )
     size_bytes: Mapped[int] = mapped_column(
         BigInteger,
         default=0,
         nullable=False,
-        doc="File size in bytes for the active version.",
+        doc="Byte size of the active file version.",
     )
     storage_path: Mapped[str] = mapped_column(
         String(1024),
         nullable=False,
-        doc="Object storage path / key in Supabase Storage bucket.",
+        doc="Storage bucket path / object key for the active version.",
     )
 
-    # Table arguments / composite indexes
     __table_args__ = (
         Index("idx_files_owner_folder", "owner_id", "folder_id", "is_deleted"),
+        Index("idx_files_name", "name"),
+        Index("idx_files_mime_type", "mime_type"),
         Index("idx_files_is_deleted", "is_deleted", "deleted_at"),
     )
 
@@ -101,6 +102,12 @@ class File(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
         back_populates="file",
         cascade="all, delete-orphan",
         foreign_keys="Star.file_id",
+    )
+    comments: Mapped[List["Comment"]] = relationship(
+        "Comment",
+        back_populates="file",
+        cascade="all, delete-orphan",
+        foreign_keys="Comment.file_id",
     )
 
     def __repr__(self) -> str:

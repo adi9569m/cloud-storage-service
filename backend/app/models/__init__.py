@@ -12,6 +12,8 @@ from app.models.share import Share, ShareRole
 from app.models.link_share import LinkShare
 from app.models.star import Star
 from app.models.activity import Activity
+from app.models.tag import Tag, ItemTag
+from app.models.comment import Comment
 
 __all__ = [
     "UUIDPrimaryKeyMixin",
@@ -26,4 +28,7 @@ __all__ = [
     "LinkShare",
     "Star",
     "Activity",
+    "Tag",
+    "ItemTag",
+    "Comment",
 ]

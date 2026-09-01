@@ -52,5 +52,11 @@ class Settings(BaseSettings):
     MAX_ZIP_DOWNLOAD_BYTES: int = 1073741824  # 1 GB
     MAX_PREVIEW_TEXT_BYTES: int = 1048576  # 1 MB
 
+    # Maintenance & Security Settings (Day 7)
+    AUTO_TRASH_PURGE_DAYS: int = 30
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_PER_MINUTE: int = 60
+    AUTH_RATE_LIMIT_PER_MINUTE: int = 10
+
 
 settings = Settings()

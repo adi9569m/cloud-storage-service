@@ -15,6 +15,8 @@ if TYPE_CHECKING:
     from app.models.link_share import LinkShare
     from app.models.star import Star
     from app.models.activity import Activity
+    from app.models.tag import Tag
+    from app.models.comment import Comment
 
 
 class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -104,6 +106,16 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     activities: Mapped[List["Activity"]] = relationship(
         "Activity",
         back_populates="user",
+    )
+    tags: Mapped[List["Tag"]] = relationship(
+        "Tag",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    comments: Mapped[List["Comment"]] = relationship(
+        "Comment",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:

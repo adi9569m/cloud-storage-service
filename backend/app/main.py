@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.middleware import RequestTracingMiddleware, SecurityHeadersMiddleware
 from app.routes import api_router
 
 # Initialize FastAPI application
@@ -14,7 +15,9 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Configure Cross-Origin Resource Sharing (CORS)
+# Configure Middlewares (Security, Tracing, CORS)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RequestTracingMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else [settings.CORS_ORIGINS],

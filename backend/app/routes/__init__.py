@@ -12,6 +12,9 @@ from app.routes.trash import router as trash_router
 from app.routes.search import router as search_router
 from app.routes.storage import router as storage_router
 from app.routes.batch import router as batch_router
+from app.routes.tag import router as tag_router
+from app.routes.comment import router as comment_router
+from app.routes.maintenance import router as maintenance_router
 
 api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(auth_router)
@@ -26,6 +29,9 @@ api_router.include_router(trash_router)
 api_router.include_router(search_router)
 api_router.include_router(storage_router)
 api_router.include_router(batch_router)
+api_router.include_router(tag_router)
+api_router.include_router(comment_router)
+api_router.include_router(maintenance_router)
 
 __all__ = [
     "api_router",
@@ -41,4 +47,7 @@ __all__ = [
     "search_router",
     "storage_router",
     "batch_router",
+    "tag_router",
+    "comment_router",
+    "maintenance_router",
 ]
