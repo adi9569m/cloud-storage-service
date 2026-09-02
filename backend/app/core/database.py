@@ -6,11 +6,18 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from app.core.config import settings
 
 # Configure SQLAlchemy engine
-# pool_pre_ping=True checks connection health before issuing queries
+is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+connect_args = {"check_same_thread": False} if is_sqlite else {}
+engine_kwargs = {
+    "echo": settings.DEBUG and settings.APP_ENV == "development",
+    "connect_args": connect_args,
+}
+if not is_sqlite:
+    engine_kwargs["pool_pre_ping"] = True
+
 engine = create_engine(
     settings.DATABASE_URL,
-    pool_pre_ping=True,
-    echo=settings.DEBUG and settings.APP_ENV == "development",
+    **engine_kwargs,
 )
 
 # Session factory for database transactions

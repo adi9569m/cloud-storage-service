@@ -1,10 +1,23 @@
-"""FastAPI application entrypoint for Cloud Storage Service."""
-
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.database import Base, engine
 from app.core.middleware import RequestTracingMiddleware, SecurityHeadersMiddleware
+import app.models  # Register all models with Base
 from app.routes import api_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for application startup and shutdown events."""
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception:
+        # Avoid blocking startup if migrations or in-memory test databases are used
+        pass
+    yield
+
 
 # Initialize FastAPI application
 app = FastAPI(
@@ -13,6 +26,7 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Configure Middlewares (Security, Tracing, CORS)
