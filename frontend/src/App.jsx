@@ -20,6 +20,9 @@ import StoragePage from './pages/StoragePage';
 import SharedPage from './pages/SharedPage';
 import StarredPage from './pages/StarredPage';
 import TrashPage from './pages/TrashPage';
+import TagsPage from './pages/TagsPage';
+import SearchPage from './pages/SearchPage';
+import PublicSharePage from './pages/PublicSharePage';
 import NotFoundPage from './pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -42,6 +45,10 @@ export function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
+            {/* Public Unauthenticated Share Viewer */}
+            <Route path="/share/:token" element={<PublicSharePage />} />
+            <Route path="/public/links/:token" element={<PublicSharePage />} />
+
             {/* Protected Drive Application Layout */}
             <Route
               path="/"
@@ -56,8 +63,9 @@ export function App() {
               <Route path="shared" element={<SharedPage />} />
               <Route path="starred" element={<StarredPage />} />
               <Route path="trash" element={<TrashPage />} />
+              <Route path="tags" element={<TagsPage />} />
+              <Route path="search" element={<SearchPage />} />
               <Route path="storage" element={<StoragePage />} />
-              <Route path="tags" element={<DashboardPage />} />
             </Route>
 
             {/* Fallback 404 Route */}

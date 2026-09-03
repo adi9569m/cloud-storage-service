@@ -1,9 +1,9 @@
 /**
- * Collapsible Google Drive-style navigation sidebar with "+ New" action button
+ * Collapsible Google Drive-style navigation sidebar with "+ New" action menu
  * and dynamic storage meter widget.
  */
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import {
@@ -15,11 +15,26 @@ import {
   Cloud,
   Plus,
   FolderPlus,
-  Upload,
+  UploadCloud,
+  Search,
 } from 'lucide-react';
 
 export const Sidebar = ({ isOpen, onClose, onNewFolder, onUploadFile }) => {
   const { user } = useAuth();
+  const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
+  const newMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (newMenuRef.current && !newMenuRef.current.contains(e.target)) {
+        setIsNewMenuOpen(false);
+      }
+    };
+    if (isNewMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isNewMenuOpen]);
 
   const navItems = [
     { name: 'My Drive', path: '/', icon: HardDrive },
@@ -27,6 +42,7 @@ export const Sidebar = ({ isOpen, onClose, onNewFolder, onUploadFile }) => {
     { name: 'Starred', path: '/starred', icon: Star },
     { name: 'Trash', path: '/trash', icon: Trash2 },
     { name: 'Tags & Labels', path: '/tags', icon: Tag },
+    { name: 'Search', path: '/search', icon: Search },
     { name: 'Storage', path: '/storage', icon: Cloud },
   ];
 
@@ -59,17 +75,42 @@ export const Sidebar = ({ isOpen, onClose, onNewFolder, onUploadFile }) => {
         }`}
       >
         <div className="flex flex-col gap-6 p-4">
-          {/* "+ New" Action Button */}
-          <div className="relative group">
+          {/* "+ New" Action Dropdown Button */}
+          <div className="relative" ref={newMenuRef}>
             <button
-              className="flex items-center gap-3 rounded-2xl bg-white px-5 py-3.5 text-sm font-semibold text-slate-700 shadow-soft hover:bg-slate-50 hover:shadow-md transition-all focus:outline-none"
-              onClick={onUploadFile}
+              onClick={() => setIsNewMenuOpen(!isNewMenuOpen)}
+              className="flex items-center gap-3 rounded-2xl bg-white px-5 py-3.5 text-sm font-semibold text-slate-700 shadow-soft hover:bg-slate-50 hover:shadow-md transition-all focus:outline-none w-full border border-slate-200"
             >
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-drive-600 text-white">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-drive-600 text-white shadow-xs">
                 <Plus className="h-4 w-4" />
               </div>
               <span>New</span>
             </button>
+
+            {isNewMenuOpen && (
+              <div className="absolute left-0 top-14 z-50 w-52 rounded-2xl border border-slate-200 bg-white p-2 shadow-modal animate-in fade-in zoom-in-95 duration-100 text-xs">
+                <button
+                  onClick={() => {
+                    setIsNewMenuOpen(false);
+                    onNewFolder?.();
+                  }}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors font-medium"
+                >
+                  <FolderPlus className="h-4 w-4 text-drive-600" />
+                  <span>New Folder</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setIsNewMenuOpen(false);
+                    onUploadFile?.();
+                  }}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-50 transition-colors font-medium"
+                >
+                  <UploadCloud className="h-4 w-4 text-drive-600" />
+                  <span>Upload Files</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Navigation Items */}

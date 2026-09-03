@@ -83,8 +83,9 @@ export const Navbar = ({ onToggleSidebar }) => {
           />
           <button
             type="button"
-            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600"
-            title="Search options"
+            onClick={() => navigate('/search')}
+            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-drive-600 transition-colors"
+            title="Advanced Search & Filters"
           >
             <SlidersHorizontal className="h-4 w-4" />
           </button>
