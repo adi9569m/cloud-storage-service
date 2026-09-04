@@ -112,3 +112,24 @@ All authorization checks are enforced server-side within FastAPI route dependenc
     "error_code": "RESOURCE_NOT_FOUND"
   }
   ```
+
+---
+
+## 5. Containerization & Production Topology
+
+The service is fully containerized for deployment via Docker and orchestration with Docker Compose, Kubernetes, or container engines:
+
+- **Frontend Container (`nginx:alpine`)**:
+  - Serves static compiled SPA assets.
+  - Implements Gzip compression and long-lived client caching for `/assets/`.
+  - Re-routes `/api/` and `/health` requests to backend containers.
+  - Implements SPA routing fallback (`try_files $uri $uri/ /index.html`).
+- **Backend Container (`python:3.12-slim`)**:
+  - Runs Uvicorn production ASGI server with multi-worker concurrency.
+  - Hardened with non-root Linux user `appuser`.
+  - Configured with native healthcheck probing `/health`.
+- **Database Container (`postgres:16-alpine`)**:
+  - Encapsulates relational schema and metadata tables.
+  - Uses persistent Docker named volume `postgres_data`.
+  - Configured with `pg_isready` readiness probe.
+

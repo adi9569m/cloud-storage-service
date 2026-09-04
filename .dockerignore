@@ -1,0 +1,13 @@
+**/.git
+**/.gitignore
+**/.pytest_cache
+**/__pycache__
+**/*.pyc
+**/node_modules
+**/dist
+**/.env
+**/.env.local
+**/.venv
+**/cloud_storage.db
+README.md
+docs/

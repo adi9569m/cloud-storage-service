@@ -7,6 +7,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AppLayout from './components/layout/AppLayout';
 
@@ -16,11 +17,14 @@ import RegisterPage from './pages/auth/RegisterPage';
 
 // App Views
 import DashboardPage from './pages/DashboardPage';
+import RecentPage from './pages/RecentPage';
 import StoragePage from './pages/StoragePage';
 import SharedPage from './pages/SharedPage';
 import StarredPage from './pages/StarredPage';
 import TrashPage from './pages/TrashPage';
 import TagsPage from './pages/TagsPage';
+import ActivityPage from './pages/ActivityPage';
+import SettingsPage from './pages/SettingsPage';
 import SearchPage from './pages/SearchPage';
 import PublicSharePage from './pages/PublicSharePage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -39,39 +43,44 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public Authentication Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+        <ToastProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public Authentication Routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
 
-            {/* Public Unauthenticated Share Viewer */}
-            <Route path="/share/:token" element={<PublicSharePage />} />
-            <Route path="/public/links/:token" element={<PublicSharePage />} />
+              {/* Public Unauthenticated Share Viewer */}
+              <Route path="/share/:token" element={<PublicSharePage />} />
+              <Route path="/public/links/:token" element={<PublicSharePage />} />
 
-            {/* Protected Drive Application Layout */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <AppLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<DashboardPage />} />
-              <Route path="drive" element={<Navigate to="/" replace />} />
-              <Route path="shared" element={<SharedPage />} />
-              <Route path="starred" element={<StarredPage />} />
-              <Route path="trash" element={<TrashPage />} />
-              <Route path="tags" element={<TagsPage />} />
-              <Route path="search" element={<SearchPage />} />
-              <Route path="storage" element={<StoragePage />} />
-            </Route>
+              {/* Protected Drive Application Layout */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<DashboardPage />} />
+                <Route path="drive" element={<Navigate to="/" replace />} />
+                <Route path="recent" element={<RecentPage />} />
+                <Route path="shared" element={<SharedPage />} />
+                <Route path="starred" element={<StarredPage />} />
+                <Route path="trash" element={<TrashPage />} />
+                <Route path="tags" element={<TagsPage />} />
+                <Route path="activity" element={<ActivityPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="search" element={<SearchPage />} />
+                <Route path="storage" element={<StoragePage />} />
+              </Route>
 
-            {/* Fallback 404 Route */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </BrowserRouter>
+              {/* Fallback 404 Route */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

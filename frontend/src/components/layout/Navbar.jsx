@@ -14,6 +14,7 @@ import {
   HardDrive,
   Menu,
   SlidersHorizontal,
+  Activity,
 } from 'lucide-react';
 
 export const Navbar = ({ onToggleSidebar }) => {
@@ -144,6 +145,22 @@ export const Navbar = ({ onToggleSidebar }) => {
                 >
                   <HardDrive className="h-4 w-4 text-slate-500" />
                   Manage Storage
+                </Link>
+                <Link
+                  to="/activity"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  <Activity className="h-4 w-4 text-slate-500" />
+                  Activity Log
+                </Link>
+                <Link
+                  to="/settings"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  <Settings className="h-4 w-4 text-slate-500" />
+                  Account Settings
                 </Link>
                 <button
                   onClick={() => {

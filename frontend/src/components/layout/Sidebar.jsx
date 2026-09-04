@@ -17,6 +17,9 @@ import {
   FolderPlus,
   UploadCloud,
   Search,
+  Clock,
+  Activity,
+  Settings,
 } from 'lucide-react';
 
 export const Sidebar = ({ isOpen, onClose, onNewFolder, onUploadFile }) => {
@@ -38,12 +41,15 @@ export const Sidebar = ({ isOpen, onClose, onNewFolder, onUploadFile }) => {
 
   const navItems = [
     { name: 'My Drive', path: '/', icon: HardDrive },
+    { name: 'Recent', path: '/recent', icon: Clock },
     { name: 'Shared with me', path: '/shared', icon: Users },
     { name: 'Starred', path: '/starred', icon: Star },
     { name: 'Trash', path: '/trash', icon: Trash2 },
     { name: 'Tags & Labels', path: '/tags', icon: Tag },
+    { name: 'Activity Log', path: '/activity', icon: Activity },
     { name: 'Search', path: '/search', icon: Search },
     { name: 'Storage', path: '/storage', icon: Cloud },
+    { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
   const formatBytes = (bytes) => {
