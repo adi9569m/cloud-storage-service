@@ -1,11 +1,8 @@
-"""Custom ASGI middlewares for request tracing, security headers, and observability."""
-
 import time
 import uuid
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-
 
 class RequestTracingMiddleware(BaseHTTPMiddleware):
     """Middleware attaching a unique X-Request-ID header to every request and response."""
@@ -21,7 +18,6 @@ class RequestTracingMiddleware(BaseHTTPMiddleware):
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Process-Time"] = f"{process_time:.4f}s"
         return response
-
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Middleware enforcing standard HTTP security response headers."""

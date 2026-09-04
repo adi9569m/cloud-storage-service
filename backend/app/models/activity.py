@@ -1,5 +1,3 @@
-"""Activity SQLAlchemy ORM model representing audit trail events."""
-
 import uuid
 from datetime import datetime
 from typing import Any, Dict, TYPE_CHECKING
@@ -10,7 +8,6 @@ from app.models.base import UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
     from app.models.user import User
-
 
 class Activity(Base, UUIDPrimaryKeyMixin):
     """Audit log tracking system events, uploads, deletions, shares, and updates."""
@@ -63,13 +60,11 @@ class Activity(Base, UUIDPrimaryKeyMixin):
         doc="Timestamp when the activity occurred (UTC).",
     )
 
-    # Table arguments / composite indexes
     __table_args__ = (
         Index("idx_activities_resource", "resource_type", "resource_id"),
         Index("idx_activities_user_created", "user_id", "created_at"),
     )
 
-    # Relationships
     user: Mapped["User | None"] = relationship(
         "User",
         back_populates="activities",

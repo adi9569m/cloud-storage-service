@@ -1,5 +1,3 @@
-"""Pydantic schemas for tag creation, color updates, item labeling, and tagged query results."""
-
 from datetime import datetime
 from typing import List, Optional
 import uuid
@@ -8,25 +6,21 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.file import FileResponse
 from app.schemas.folder import FolderResponse
 
-
 class TagBase(BaseModel):
     """Base tag schema with name and UI color."""
 
     name: str = Field(..., min_length=1, max_length=50, description="Tag label name")
     color: str = Field("#3B82F6", max_length=30, description="Hex/CSS color code (e.g. #EF4444, #10B981)")
 
-
 class TagCreate(TagBase):
     """Schema for creating a new tag."""
     pass
-
 
 class TagUpdate(BaseModel):
     """Schema for updating tag name or color."""
 
     name: Optional[str] = Field(None, min_length=1, max_length=50)
     color: Optional[str] = Field(None, max_length=30)
-
 
 class TagResponse(TagBase):
     """Tag entity response with usage item count."""
@@ -39,7 +33,6 @@ class TagResponse(TagBase):
     created_at: datetime
     updated_at: datetime
 
-
 class TagAttachRequest(BaseModel):
     """Request payload to attach a tag to a file or folder."""
 
@@ -47,14 +40,12 @@ class TagAttachRequest(BaseModel):
     file_id: Optional[uuid.UUID] = None
     folder_id: Optional[uuid.UUID] = None
 
-
 class TagDetachRequest(BaseModel):
     """Request payload to detach a tag from a file or folder."""
 
     tag_id: uuid.UUID
     file_id: Optional[uuid.UUID] = None
     folder_id: Optional[uuid.UUID] = None
-
 
 class TaggedItemsResponse(BaseModel):
     """Response containing all files and folders attached to a tag."""

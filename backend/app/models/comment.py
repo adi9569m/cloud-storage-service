@@ -1,5 +1,3 @@
-"""Comment SQLAlchemy ORM model for team notes and file collaboration."""
-
 import uuid
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Text
@@ -11,7 +9,6 @@ from app.models.base import TimestampMixin, UUIDPrimaryKeyMixin
 if TYPE_CHECKING:
     from app.models.user import User
     from app.models.file import File
-
 
 class Comment(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     """File collaboration comment created by file owners or shared users."""
@@ -36,7 +33,6 @@ class Comment(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         doc="Markdown or plain text comment content.",
     )
 
-    # Relationships
     file: Mapped["File"] = relationship("File", back_populates="comments")
     user: Mapped["User"] = relationship("User", back_populates="comments")
 

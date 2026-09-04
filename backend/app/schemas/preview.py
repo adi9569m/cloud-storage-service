@@ -1,8 +1,5 @@
-"""Pydantic schemas for file content preview and text inspection."""
-
 import uuid
 from pydantic import BaseModel, Field
-
 
 class TextContentResponse(BaseModel):
     """Raw text/code content and inspection metadata for in-browser file preview."""

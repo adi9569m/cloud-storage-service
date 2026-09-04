@@ -1,5 +1,3 @@
-"""Integration tests for user authentication, registration, token refresh, and profile endpoints."""
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -11,8 +9,6 @@ from app.main import app
 from app.models.user import User
 from app.core.security import hash_password, create_access_token
 
-
-# Setup in-memory SQLite database for testing
 TEST_DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(
     TEST_DATABASE_URL,
@@ -20,7 +16,6 @@ engine = create_engine(
     poolclass=StaticPool,
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 @pytest.fixture(scope="function")
 def db_session():
@@ -32,7 +27,6 @@ def db_session():
     finally:
         session.close()
         Base.metadata.drop_all(bind=engine)
-
 
 @pytest.fixture(scope="function")
 def client(db_session):
@@ -47,7 +41,6 @@ def client(db_session):
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
-
 
 def test_register_user_success(client):
     """Test successful user registration."""
@@ -67,7 +60,6 @@ def test_register_user_success(client):
     assert data["storage_used_bytes"] == 0
     assert "hashed_password" not in data
 
-
 def test_register_duplicate_email(client):
     """Test registering with an existing email returns 409 Conflict."""
     payload = {
@@ -78,7 +70,6 @@ def test_register_duplicate_email(client):
     res1 = client.post("/api/v1/auth/register", json=payload)
     assert res1.status_code == 201
 
-    # Try registering again with same email (different case/spaces)
     payload_dup = {
         "email": "  DUPLICATE@example.com  ",
         "password": "Password456!",
@@ -88,23 +79,20 @@ def test_register_duplicate_email(client):
     assert res2.status_code == 409
     assert "already exists" in res2.json()["detail"]
 
-
 def test_register_validation_error(client):
     """Test registration input validation (short password and bad email format)."""
-    # Short password
+
     response = client.post(
         "/api/v1/auth/register",
         json={"email": "valid@example.com", "password": "short"},
     )
     assert response.status_code == 422
 
-    # Malformed email
     response = client.post(
         "/api/v1/auth/register",
         json={"email": "notanemail", "password": "ValidPassword123!"},
     )
     assert response.status_code == 422
-
 
 def test_login_success(client):
     """Test successful user login returning access and refresh tokens."""
@@ -126,7 +114,6 @@ def test_login_success(client):
     assert "refresh_token" in data
     assert data["token_type"] == "bearer"
 
-
 def test_login_invalid_password(client):
     """Test login failure on incorrect password."""
     client.post(
@@ -141,7 +128,6 @@ def test_login_invalid_password(client):
     assert response.status_code == 401
     assert "Incorrect email or password" in response.json()["detail"]
 
-
 def test_login_nonexistent_user(client):
     """Test login failure for nonexistent email."""
     response = client.post(
@@ -149,7 +135,6 @@ def test_login_nonexistent_user(client):
         json={"email": "nonexistent@example.com", "password": "SomePassword123!"},
     )
     assert response.status_code == 401
-
 
 def test_login_inactive_user(client, db_session):
     """Test that deactivated accounts cannot log in."""
@@ -167,7 +152,6 @@ def test_login_inactive_user(client, db_session):
     )
     assert response.status_code == 403
     assert "disabled or inactive" in response.json()["detail"]
-
 
 def test_refresh_token_flow(client):
     """Test refreshing token pair with a valid refresh token."""
@@ -190,7 +174,6 @@ def test_refresh_token_flow(client):
     assert "access_token" in data
     assert "refresh_token" in data
 
-
 def test_refresh_with_access_token_rejected(client):
     """Test that providing an access token to the refresh endpoint is rejected."""
     client.post(
@@ -210,7 +193,6 @@ def test_refresh_with_access_token_rejected(client):
     assert response.status_code == 400
     assert "Invalid token type" in response.json()["detail"]
 
-
 def test_get_current_user_profile(client):
     """Test fetching profile for authenticated user."""
     client.post(
@@ -227,18 +209,15 @@ def test_get_current_user_profile(client):
     )
     access_token = login_res.json()["access_token"]
 
-    # Request without token -> 401
     res_no_auth = client.get("/api/v1/auth/me")
     assert res_no_auth.status_code == 401
 
-    # Request with invalid token -> 401
     res_bad_auth = client.get(
         "/api/v1/auth/me",
         headers={"Authorization": "Bearer invalid.token.payload"},
     )
     assert res_bad_auth.status_code == 401
 
-    # Request with valid token -> 200
     res_valid = client.get(
         "/api/v1/auth/me",
         headers={"Authorization": f"Bearer {access_token}"},
@@ -247,7 +226,6 @@ def test_get_current_user_profile(client):
     data = res_valid.json()
     assert data["email"] == "me@example.com"
     assert data["full_name"] == "Me Profile"
-
 
 def test_update_profile(client):
     """Test updating user display name and avatar URL."""
@@ -275,7 +253,6 @@ def test_update_profile(client):
     assert data["full_name"] == "Updated Name"
     assert data["avatar_url"] == "https://example.com/avatar.png"
 
-
 def test_change_password_flow(client):
     """Test password change and subsequent login with new credentials."""
     client.post(
@@ -288,7 +265,6 @@ def test_change_password_flow(client):
     )
     access_token = login_res.json()["access_token"]
 
-    # Wrong current password
     fail_res = client.post(
         "/api/v1/auth/change-password",
         json={"current_password": "WrongOldPassword1!", "new_password": "NewPassword123!"},
@@ -297,7 +273,6 @@ def test_change_password_flow(client):
     assert fail_res.status_code == 400
     assert "verification failed" in fail_res.json()["detail"]
 
-    # Correct current password
     ok_res = client.post(
         "/api/v1/auth/change-password",
         json={"current_password": "OldPassword123!", "new_password": "NewPassword123!"},
@@ -305,21 +280,18 @@ def test_change_password_flow(client):
     )
     assert ok_res.status_code == 200
 
-    # Old password no longer works
     old_login = client.post(
         "/api/v1/auth/login",
         json={"email": "pw_change@example.com", "password": "OldPassword123!"},
     )
     assert old_login.status_code == 401
 
-    # New password works
     new_login = client.post(
         "/api/v1/auth/login",
         json={"email": "pw_change@example.com", "password": "NewPassword123!"},
     )
     assert new_login.status_code == 200
     assert "access_token" in new_login.json()
-
 
 def test_refresh_expired_token(client):
     """Test that expired refresh token returns 401."""
@@ -337,7 +309,6 @@ def test_refresh_expired_token(client):
     assert response.status_code == 401
     assert "expired" in response.json()["detail"].lower()
 
-
 def test_refresh_invalid_format_token(client):
     """Test that malformed refresh token returns 401."""
     response = client.post(
@@ -345,7 +316,6 @@ def test_refresh_invalid_format_token(client):
         json={"refresh_token": "malformed.refresh.token"},
     )
     assert response.status_code == 401
-
 
 def test_get_me_with_expired_token(client):
     """Test that accessing /me with an expired access token returns 401."""
@@ -363,7 +333,6 @@ def test_get_me_with_expired_token(client):
     assert response.status_code == 401
     assert "expired" in response.json()["detail"].lower()
 
-
 def test_get_me_with_refresh_token_rejected(client):
     """Test that using a refresh token as bearer access token for /me returns 401."""
     from app.core.security import create_refresh_token
@@ -379,7 +348,6 @@ def test_get_me_with_refresh_token_rejected(client):
     assert response.status_code == 401
     assert "access token required" in response.json()["detail"].lower()
 
-
 def test_login_case_insensitivity(client):
     """Test that login email is case-insensitive."""
     client.post(
@@ -387,7 +355,6 @@ def test_login_case_insensitivity(client):
         json={"email": "case.sensitive@example.com", "password": "Password123!"},
     )
 
-    # Login with uppercase email
     response = client.post(
         "/api/v1/auth/login",
         json={"email": "CASE.SENSITIVE@EXAMPLE.COM", "password": "Password123!"},

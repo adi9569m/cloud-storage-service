@@ -1,5 +1,3 @@
-"""Integration tests for Storage Analytics, Metrics, Category Breakdown, and Quota Enforcement."""
-
 import io
 import uuid
 import pytest
@@ -25,7 +23,6 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
 @pytest.fixture(scope="function")
 def db_session():
     """Create an isolated database session."""
@@ -36,7 +33,6 @@ def db_session():
     finally:
         session.close()
         Base.metadata.drop_all(bind=engine)
-
 
 @pytest.fixture(scope="function")
 def client(db_session):
@@ -51,7 +47,6 @@ def client(db_session):
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
-
 
 @pytest.fixture(scope="function")
 def test_user(db_session):
@@ -68,13 +63,11 @@ def test_user(db_session):
     db_session.refresh(user)
     return user
 
-
 @pytest.fixture(scope="function")
 def auth_headers(test_user):
     """Generate bearer token headers."""
     token = create_access_token(subject=str(test_user.id))
     return {"Authorization": f"Bearer {token}"}
-
 
 @pytest.fixture(scope="function")
 def seed_storage_files(db_session, test_user):
@@ -111,7 +104,6 @@ def seed_storage_files(db_session, test_user):
     ]
     db_session.add_all(files)
 
-    # Add soft deleted file
     trash_file = File(
         name="deleted.zip",
         owner_id=test_user.id,
@@ -123,7 +115,6 @@ def seed_storage_files(db_session, test_user):
     db_session.add(trash_file)
     db_session.commit()
     return files
-
 
 def test_get_storage_summary(client, auth_headers, seed_storage_files):
     """Test storage summary metrics and category breakdown calculation."""
@@ -137,7 +128,6 @@ def test_get_storage_summary(client, auth_headers, seed_storage_files):
     assert data["total_files"] == 4
     assert data["trash_bytes"] == 15000
 
-    # Verify category breakdown list
     breakdown_map = {item["category"]: item for item in data["breakdown"]}
     assert breakdown_map["images"]["bytes_used"] == 40000
     assert breakdown_map["images"]["file_count"] == 1
@@ -145,11 +135,9 @@ def test_get_storage_summary(client, auth_headers, seed_storage_files):
     assert breakdown_map["audio"]["bytes_used"] == 20000
     assert breakdown_map["code"]["bytes_used"] == 10000
 
-    # Verify largest files
     assert len(data["largest_files"]) == 4
     assert data["largest_files"][0]["name"] == "photo1.jpg"
     assert data["largest_files"][0]["size_bytes"] == 40000
-
 
 def test_get_storage_breakdown_endpoint(client, auth_headers, seed_storage_files):
     """Test dedicated breakdown endpoint."""
@@ -162,23 +150,20 @@ def test_get_storage_breakdown_endpoint(client, auth_headers, seed_storage_files
     assert "documents" in categories
     assert "code" in categories
 
-
 def test_recalculate_storage(client, auth_headers, seed_storage_files, db_session, test_user):
     """Test recalculating user storage usage from database files table."""
-    # Seed files sum = 40000 + 30000 + 20000 + 10000 = 100000
+
     resp = client.post("/api/v1/storage/recalculate", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()
     assert data["storage_used_bytes"] == 100000
 
-
 def test_quota_exceeded_rejection_on_upload(client, auth_headers, db_session, test_user):
     """Test upload rejected with 413 when approaching/exceeding storage quota."""
-    # Set user storage used near limit
+
     test_user.storage_used_bytes = settings.DEFAULT_STORAGE_QUOTA_BYTES - 10
     db_session.commit()
 
-    # Try uploading a 100-byte file (which exceeds remaining 10 bytes)
     file_payload = {"file": ("test_overflow.txt", b"A" * 100, "text/plain")}
     resp = client.post("/api/v1/files/upload", headers=auth_headers, files=file_payload)
     assert resp.status_code == 413

@@ -1,5 +1,3 @@
-"""FileVersion SQLAlchemy ORM model representing historic and current file versions."""
-
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -11,7 +9,6 @@ from app.models.base import UUIDPrimaryKeyMixin
 if TYPE_CHECKING:
     from app.models.file import File
     from app.models.user import User
-
 
 class FileVersion(Base, UUIDPrimaryKeyMixin):
     """Immutable version snapshot tracking binary object uploads and checksums."""
@@ -66,13 +63,11 @@ class FileVersion(Base, UUIDPrimaryKeyMixin):
         doc="Timestamp when this version was created (UTC).",
     )
 
-    # Unique constraint and composite indexes
     __table_args__ = (
         UniqueConstraint("file_id", "version_number", name="uq_file_versions_file_version"),
         Index("idx_file_versions_file_ver", "file_id", "version_number"),
     )
 
-    # Relationships
     file: Mapped["File"] = relationship(
         "File",
         back_populates="versions",

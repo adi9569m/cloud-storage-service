@@ -1,5 +1,3 @@
-"""API routes for audit trail activity logging and feeds."""
-
 from typing import Optional
 import uuid
 from fastapi import APIRouter, Depends, Query, status
@@ -11,7 +9,6 @@ from app.schemas.activity import ActivityListResponse
 from app.services.activity_service import ActivityService
 
 router = APIRouter(prefix="/activities", tags=["Activity & Audit Logs"])
-
 
 @router.get(
     "",
@@ -37,7 +34,6 @@ def list_user_activities(
         limit=limit,
         offset=offset,
     )
-
 
 @router.get(
     "/resource/{resource_type}/{resource_id}",

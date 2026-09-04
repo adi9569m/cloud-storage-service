@@ -8,7 +8,6 @@
   }
 }
 
-/* Custom modern scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -27,7 +26,6 @@
   background: #94a3b8;
 }
 
-/* Glassmorphism and UI helper utilities */
 .glass-panel {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);

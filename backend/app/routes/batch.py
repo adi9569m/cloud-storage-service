@@ -1,5 +1,3 @@
-"""API router for batch and bulk operations on files and folders."""
-
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
@@ -18,7 +16,6 @@ from app.services.batch_service import BatchService
 
 router = APIRouter(prefix="/batch", tags=["Batch Operations"])
 
-
 @router.post("/delete", response_model=BatchOperationResult)
 def batch_delete(
     payload: BatchItemSelection,
@@ -35,7 +32,6 @@ def batch_delete(
         folder_ids=payload.folder_ids,
         ip_address=ip_addr,
     )
-
 
 @router.post("/restore", response_model=BatchOperationResult)
 def batch_restore(
@@ -54,7 +50,6 @@ def batch_restore(
         ip_address=ip_addr,
     )
 
-
 @router.post("/purge", response_model=BatchOperationResult)
 def batch_purge(
     payload: BatchItemSelection,
@@ -71,7 +66,6 @@ def batch_purge(
         folder_ids=payload.folder_ids,
         ip_address=ip_addr,
     )
-
 
 @router.post("/move", response_model=BatchOperationResult)
 def batch_move(
@@ -91,7 +85,6 @@ def batch_move(
         ip_address=ip_addr,
     )
 
-
 @router.post("/copy", response_model=BatchOperationResult)
 def batch_copy(
     payload: BatchCopyRequest,
@@ -109,7 +102,6 @@ def batch_copy(
         ip_address=ip_addr,
     )
 
-
 @router.post("/star", response_model=BatchOperationResult)
 def batch_star(
     payload: BatchStarRequest,
@@ -124,7 +116,6 @@ def batch_star(
         folder_ids=payload.folder_ids,
         is_starred=payload.is_starred,
     )
-
 
 @router.post("/download")
 def batch_download(

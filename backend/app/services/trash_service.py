@@ -1,5 +1,3 @@
-"""Trash service handling trash listing, bulk restore, and permanent trash purge."""
-
 from typing import List, Optional
 import uuid
 from sqlalchemy import select
@@ -17,7 +15,6 @@ from app.schemas.trash import (
 )
 from app.services.activity_service import ActivityService
 from app.services.storage_service import StorageService
-
 
 class TrashService:
     """Business logic for trash inspection, restoration, and permanent storage purge."""
@@ -102,7 +99,7 @@ class TrashService:
             folder.is_deleted = False
             folder.deleted_at = None
             if folder.parent_id:
-                # Check if parent is still deleted
+
                 parent = db.scalar(
                     select(Folder).where(
                         Folder.id == folder.parent_id,
@@ -163,7 +160,7 @@ class TrashService:
 
         for file in files:
             purged_bytes += file.size_bytes
-            # Purge all version storage objects
+
             versions = db.scalars(
                 select(FileVersion).where(FileVersion.file_id == file.id)
             ).all()
@@ -183,7 +180,6 @@ class TrashService:
         for folder in folders:
             db.delete(folder)
 
-        # Update user's storage quota
         user = db.scalar(select(User).where(User.id == user_id))
         if user:
             user.storage_used_bytes = max(0, user.storage_used_bytes - purged_bytes)

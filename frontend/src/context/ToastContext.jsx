@@ -1,7 +1,3 @@
-/**
- * Global Toast Notification Provider and useToast custom hook.
- */
-
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import ToastContainer from '../components/common/ToastContainer';
 

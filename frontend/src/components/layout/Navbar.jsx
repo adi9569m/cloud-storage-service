@@ -1,7 +1,3 @@
-/**
- * Top application navigation header with global search and user avatar profile menu.
- */
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -24,7 +20,6 @@ export const Navbar = ({ onToggleSidebar }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -52,7 +47,7 @@ export const Navbar = ({ onToggleSidebar }) => {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-surface-border bg-white px-4">
-      {/* Left branding and mobile menu toggle */}
+
       <div className="flex items-center gap-3 md:w-64">
         <button
           onClick={onToggleSidebar}
@@ -69,7 +64,6 @@ export const Navbar = ({ onToggleSidebar }) => {
         </Link>
       </div>
 
-      {/* Center search input */}
       <div className="flex-1 max-w-2xl px-2 md:px-6">
         <form onSubmit={handleSearchSubmit} className="relative w-full">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
@@ -93,7 +87,6 @@ export const Navbar = ({ onToggleSidebar }) => {
         </form>
       </div>
 
-      {/* Right profile avatar and menu */}
       <div className="flex items-center gap-3">
         <div className="relative" ref={profileRef}>
           <button
@@ -104,7 +97,6 @@ export const Navbar = ({ onToggleSidebar }) => {
             {user?.full_name ? user.full_name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || 'U'}
           </button>
 
-          {/* Profile Dropdown */}
           {isProfileOpen && (
             <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-slate-200 bg-white p-3 shadow-modal z-50 animate-in fade-in zoom-in-95 duration-100">
               <div className="flex items-center gap-3 border-b border-slate-100 pb-3 px-2">
@@ -119,7 +111,6 @@ export const Navbar = ({ onToggleSidebar }) => {
                 </div>
               </div>
 
-              {/* Storage Info Snippet */}
               <div className="my-2 rounded-xl bg-slate-50 p-2.5">
                 <div className="flex items-center justify-between text-xs text-slate-600 mb-1.5">
                   <span className="flex items-center gap-1 font-medium">

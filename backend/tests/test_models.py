@@ -1,5 +1,3 @@
-"""Tests for SQLAlchemy ORM models schema definition and relationship consistency."""
-
 import uuid
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker, configure_mappers
@@ -16,13 +14,11 @@ from app.models import (
     Activity,
 )
 
-
 def test_models_mapper_configuration():
     """Verify that all model relationships and mappers are configured correctly."""
-    # configure_mappers() will raise InvalidRequestError if any relationship or foreign key is misconfigured
+
     configure_mappers()
 
-    # Check table names registered in Base metadata
     expected_tables = {
         "users",
         "folders",
@@ -36,7 +32,6 @@ def test_models_mapper_configuration():
     registered_tables = set(Base.metadata.tables.keys())
     assert expected_tables.issubset(registered_tables), f"Missing tables: {expected_tables - registered_tables}"
 
-
 def test_models_in_memory_creation():
     """Verify tables can be created and basic relationships work in SQLite."""
     sqlite_engine = create_engine("sqlite:///:memory:")
@@ -45,7 +40,6 @@ def test_models_in_memory_creation():
     Session = sessionmaker(bind=sqlite_engine)
     session = Session()
 
-    # Create a user
     user = User(
         email="test@example.com",
         hashed_password="hashed_pw_example",
@@ -57,7 +51,6 @@ def test_models_in_memory_creation():
     assert user.email == "test@example.com"
     assert user.is_active is True
 
-    # Create a folder owned by user
     folder = Folder(
         name="Documents",
         owner_id=user.id,
@@ -67,7 +60,6 @@ def test_models_in_memory_creation():
     assert folder.id is not None
     assert folder.owner.id == user.id
 
-    # Create a subfolder
     subfolder = Folder(
         name="Reports",
         owner_id=user.id,
@@ -77,7 +69,6 @@ def test_models_in_memory_creation():
     session.commit()
     assert subfolder.parent.id == folder.id
 
-    # Create a file
     file = File(
         name="sales_2026.pdf",
         folder_id=folder.id,
@@ -91,7 +82,6 @@ def test_models_in_memory_creation():
     assert file.id is not None
     assert file.folder.id == folder.id
 
-    # Create a file version
     version = FileVersion(
         file_id=file.id,
         version_number=1,
@@ -105,7 +95,6 @@ def test_models_in_memory_creation():
     assert len(file.versions) == 1
     assert file.versions[0].id == version.id
 
-    # Create another user for sharing
     recipient = User(
         email="recipient@example.com",
         hashed_password="recipient_pw",
@@ -114,7 +103,6 @@ def test_models_in_memory_creation():
     session.add(recipient)
     session.commit()
 
-    # Create a direct share
     share = Share(
         granter_id=user.id,
         grantee_id=recipient.id,
@@ -127,7 +115,6 @@ def test_models_in_memory_creation():
     assert share.granter.id == user.id
     assert share.grantee.id == recipient.id
 
-    # Create a link share
     link = LinkShare(
         token="secure-test-token-123456",
         created_by_id=user.id,
@@ -138,7 +125,6 @@ def test_models_in_memory_creation():
     session.commit()
     assert link.token == "secure-test-token-123456"
 
-    # Create a star
     star = Star(
         user_id=user.id,
         file_id=file.id,
@@ -147,7 +133,6 @@ def test_models_in_memory_creation():
     session.commit()
     assert star.file.id == file.id
 
-    # Create an activity
     activity = Activity(
         user_id=user.id,
         action="FILE_UPLOAD",

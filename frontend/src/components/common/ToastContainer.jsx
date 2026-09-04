@@ -1,7 +1,3 @@
-/**
- * Floating Toast viewport container displaying stacked toast alerts with animations.
- */
-
 import React from 'react';
 import { CheckCircle2, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
 

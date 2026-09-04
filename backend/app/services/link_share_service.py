@@ -1,5 +1,3 @@
-"""LinkShare service handling public tokenized links, password hashing, and anonymous downloads."""
-
 from datetime import datetime, timezone
 import secrets
 from typing import List, Optional
@@ -23,7 +21,6 @@ from app.schemas.link_share import (
 )
 from app.services.activity_service import ActivityService
 from app.services.storage_service import StorageService
-
 
 class LinkShareService:
     """Business logic for public shareable links and anonymous file/folder consumption."""
@@ -99,10 +96,8 @@ class LinkShareService:
                 detail="Either file_id or folder_id must be provided.",
             )
 
-        # Generate unique token
         token = secrets.token_urlsafe(32)
 
-        # Hash password if provided
         pwd_hash = hash_password(link_in.password) if link_in.password else None
 
         link = LinkShare(
@@ -187,7 +182,7 @@ class LinkShareService:
             user_id=user_id,
             action="LINK_SHARE_UPDATED",
             resource_type=resource_type,
-            resource_id=target_id,  # type: ignore
+            resource_id=target_id,
             details={
                 "token": link.token[:8] + "...",
                 "is_active": link.is_active,
@@ -219,7 +214,7 @@ class LinkShareService:
             user_id=user_id,
             action="LINK_SHARE_DELETED",
             resource_type=resource_type,
-            resource_id=target_id,  # type: ignore
+            resource_id=target_id,
             details={"token": link.token[:8] + "..."},
             ip_address=ip_address,
         )
@@ -283,7 +278,7 @@ class LinkShareService:
             )
         if link.expires_at:
             now_utc = datetime.now(timezone.utc)
-            # Ensure timezone awareness comparison
+
             expires_at_aware = link.expires_at if link.expires_at.tzinfo else link.expires_at.replace(tzinfo=timezone.utc)
             if now_utc > expires_at_aware:
                 raise HTTPException(
@@ -311,7 +306,7 @@ class LinkShareService:
 
         if has_password:
             if not password:
-                # Password required
+
                 return PublicLinkAccessResponse(
                     token=token,
                     role=link.role,
@@ -319,13 +314,12 @@ class LinkShareService:
                     has_password=True,
                     requires_password=True,
                 )
-            if not verify_password(password, link.password_hash):  # type: ignore
+            if not verify_password(password, link.password_hash):
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Incorrect password for this protected share link.",
                 )
 
-        # Increment access count
         link.access_count += 1
         db.commit()
 
@@ -337,7 +331,7 @@ class LinkShareService:
             user_id=None,
             action="LINK_SHARE_ACCESSED",
             resource_type=resource_type.upper(),
-            resource_id=target_id,  # type: ignore
+            resource_id=target_id,
             details={"token": token[:8] + "..."},
             ip_address=ip_address,
         )
@@ -440,7 +434,6 @@ class LinkShareService:
         root_folder = link.folder
         target_folder = root_folder
 
-        # If subfolder navigation is requested, ensure target_folder is descendant of root_folder
         if folder_id and folder_id != root_folder.id:
             sub = db.scalar(
                 select(Folder).where(Folder.id == folder_id, Folder.is_deleted.is_(False))
@@ -448,7 +441,6 @@ class LinkShareService:
             if not sub:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subfolder not found.")
 
-            # Validate that `sub` is indeed inside root_folder
             curr = sub.parent_id
             is_child = False
             while curr:
@@ -467,7 +459,6 @@ class LinkShareService:
                 )
             target_folder = sub
 
-        # Fetch child subfolders & files
         subfolders = db.scalars(
             select(Folder)
             .where(Folder.parent_id == target_folder.id, Folder.is_deleted.is_(False))
@@ -517,7 +508,6 @@ class LinkShareService:
             for fi in child_files
         ]
 
-        # Breadcrumbs from root_folder down to target_folder
         breadcrumbs: List[BreadcrumbItem] = []
         trail = []
         curr_id = target_folder.id
@@ -528,7 +518,7 @@ class LinkShareService:
             trail.append(BreadcrumbItem(id=f.id, name=f.name))
             if f.id == root_folder.id:
                 break
-            curr_id = f.parent_id  # type: ignore
+            curr_id = f.parent_id
 
         breadcrumbs = list(reversed(trail))
 

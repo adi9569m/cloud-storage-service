@@ -1,7 +1,3 @@
-/**
- * Account Settings, Profile Management, Security, and System Maintenance Hub.
- */
-
 import React, { useState, useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
 import authService from '../services/authService';
@@ -36,23 +32,19 @@ export const SettingsPage = () => {
 
   const [activeTab, setActiveTab] = useState('profile');
 
-  // Profile form state
   const [fullName, setFullName] = useState(user?.full_name || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
-  // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  // Storage summary state
   const [storageData, setStorageData] = useState(null);
   const [isLoadingStorage, setIsLoadingStorage] = useState(false);
   const [isSyncingStorage, setIsSyncingStorage] = useState(false);
 
-  // System maintenance state
   const [systemStatus, setSystemStatus] = useState(null);
   const [isLoadingStatus, setIsLoadingStatus] = useState(false);
   const [retentionDays, setRetentionDays] = useState(30);
@@ -67,14 +59,12 @@ export const SettingsPage = () => {
     }
   }, [user]);
 
-  // Load storage details when storage tab is clicked
   useEffect(() => {
     if (activeTab === 'storage' && !storageData) {
       loadStorageSummary();
     }
   }, [activeTab]);
 
-  // Load system status when maintenance tab is clicked
   useEffect(() => {
     if (activeTab === 'maintenance' && !systemStatus) {
       loadSystemStatus();
@@ -232,7 +222,7 @@ export const SettingsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+
       <div className="border-b border-slate-200 pb-4">
         <h1 className="text-2xl font-bold tracking-tight text-slate-800">Settings & Preferences</h1>
         <p className="text-xs text-slate-500 mt-1">
@@ -240,7 +230,6 @@ export const SettingsPage = () => {
         </p>
       </div>
 
-      {/* Settings Navigation Tabs */}
       <div className="flex border-b border-slate-200 gap-2 overflow-x-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -262,7 +251,6 @@ export const SettingsPage = () => {
         })}
       </div>
 
-      {/* TAB CONTENT: Profile */}
       {activeTab === 'profile' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
@@ -320,7 +308,6 @@ export const SettingsPage = () => {
             </form>
           </div>
 
-          {/* Account Summary Card */}
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft space-y-4">
             <h3 className="text-base font-bold text-slate-800">Account Overview</h3>
             <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
@@ -363,7 +350,6 @@ export const SettingsPage = () => {
         </div>
       )}
 
-      {/* TAB CONTENT: Security */}
       {activeTab === 'security' && (
         <div className="max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
           <h3 className="text-base font-bold text-slate-800 mb-2">Change Password</h3>
@@ -430,7 +416,6 @@ export const SettingsPage = () => {
         </div>
       )}
 
-      {/* TAB CONTENT: Storage */}
       {activeTab === 'storage' && (
         <div className="space-y-6">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
@@ -464,10 +449,9 @@ export const SettingsPage = () => {
         </div>
       )}
 
-      {/* TAB CONTENT: System Maintenance */}
       {activeTab === 'maintenance' && (
         <div className="space-y-6">
-          {/* Diagnostics Telemetry Card */}
+
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
@@ -524,9 +508,8 @@ export const SettingsPage = () => {
             ) : null}
           </div>
 
-          {/* Maintenance Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Trash Cleanup */}
+
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2.5 mb-2">
@@ -576,7 +559,6 @@ export const SettingsPage = () => {
               </button>
             </div>
 
-            {/* Expired Links & Global Sync */}
             <div className="space-y-4">
               <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
                 <div className="flex items-center gap-2.5 mb-2">
@@ -620,7 +602,6 @@ export const SettingsPage = () => {
             </div>
           </div>
 
-          {/* Task Result Summary */}
           {taskResult && (
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-800 animate-in fade-in duration-200">
               <p className="font-bold mb-0.5">{taskResult.title}</p>

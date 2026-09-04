@@ -1,5 +1,3 @@
-"""Security utilities for password hashing and JWT token management."""
-
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional, Union
 import uuid
@@ -7,15 +5,13 @@ import bcrypt
 import jwt
 from app.core.config import settings
 
-
 def hash_password(password: str) -> str:
     """Hash a plaintext password using bcrypt."""
-    # Convert string to bytes and generate hash
+
     password_bytes = password.encode("utf-8")
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password_bytes, salt)
     return hashed.decode("utf-8")
-
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plaintext password against a bcrypt hash."""
@@ -25,7 +21,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(password_bytes, hash_bytes)
     except Exception:
         return False
-
 
 def create_access_token(
     subject: Union[str, uuid.UUID],
@@ -50,7 +45,6 @@ def create_access_token(
 
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
-
 def create_refresh_token(
     subject: Union[str, uuid.UUID],
     expires_delta: Optional[timedelta] = None,
@@ -74,10 +68,9 @@ def create_refresh_token(
 
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
-
 def decode_token(token: str) -> Dict[str, Any]:
     """Decode and validate a JWT token signature and expiration.
-    
+
     Raises:
         jwt.ExpiredSignatureError: When the token has expired.
         jwt.InvalidTokenError: When the token is invalid or malformed.

@@ -1,5 +1,3 @@
-"""Pydantic validation schemas package."""
-
 from app.schemas.user import (
     UserBase,
     UserCreate,
@@ -33,6 +31,9 @@ from app.schemas.file import (
     FileResponse,
     FileDetailResponse,
     FileListResponse,
+    ArchiveExtractRequest,
+    ArchiveExtractResponse,
+    ChecksumVerificationResponse,
 )
 from app.schemas.folder import (
     BreadcrumbItem,
@@ -151,6 +152,9 @@ __all__ = [
     "FileResponse",
     "FileDetailResponse",
     "FileListResponse",
+    "ArchiveExtractRequest",
+    "ArchiveExtractResponse",
+    "ChecksumVerificationResponse",
     "BreadcrumbItem",
     "FolderBase",
     "FolderCreate",

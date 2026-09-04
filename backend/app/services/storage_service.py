@@ -1,5 +1,3 @@
-"""Storage service managing object keys, presigned URLs, checksum calculation, and blob persistence."""
-
 import hashlib
 import os
 import re
@@ -7,11 +5,9 @@ import uuid
 from typing import Any, Dict, Optional
 from app.core.config import settings
 
-
 class StorageService:
     """Manages object storage paths, signed upload/download URLs, and binary persistence."""
 
-    # In-memory blob store for local testing/development environments
     _memory_store: Dict[str, bytes] = {}
 
     @staticmethod
@@ -51,7 +47,6 @@ class StorageService:
         base_url = settings.SUPABASE_URL.rstrip("/")
         bucket = settings.SUPABASE_STORAGE_BUCKET
 
-        # Simulated or actual Supabase Storage signed upload URL
         upload_url = (
             f"{base_url}/storage/v1/object/upload/sign/{bucket}/{clean_path}"
             f"?token=signed_upload_token_{uuid.uuid4().hex[:16]}"

@@ -1,5 +1,3 @@
-"""Maintenance service providing automated trash retention cleanup, link expiration, and system telemetry."""
-
 from datetime import datetime, timedelta, timezone
 from typing import List
 from sqlalchemy import func, select
@@ -19,7 +17,6 @@ from app.schemas.maintenance import (
 from app.services.file_service import FileService
 from app.services.folder_service import FolderService
 from app.services.storage_analytics_service import StorageAnalyticsService
-
 
 class MaintenanceService:
     """Service executing maintenance background tasks, data retention, and telemetry."""

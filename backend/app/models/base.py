@@ -1,10 +1,7 @@
-"""Base mixins and database configuration helpers for SQLAlchemy 2.0 models."""
-
 import uuid
 from datetime import datetime
 from sqlalchemy import DateTime, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
-
 
 class UUIDPrimaryKeyMixin:
     """Mixin that provides a UUID primary key for database entities."""
@@ -16,7 +13,6 @@ class UUIDPrimaryKeyMixin:
         index=True,
         doc="Universally unique identifier for the entity.",
     )
-
 
 class TimestampMixin:
     """Mixin that provides creation and update timestamps with timezone awareness."""
@@ -34,7 +30,6 @@ class TimestampMixin:
         nullable=False,
         doc="Timestamp when the entity record was last updated (UTC).",
     )
-
 
 class SoftDeleteMixin:
     """Mixin that provides soft delete capability for trash and restore management."""

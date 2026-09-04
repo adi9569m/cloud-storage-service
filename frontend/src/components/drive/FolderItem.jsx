@@ -1,7 +1,3 @@
-/**
- * Folder item component rendering in Grid or List layout.
- */
-
 import React from 'react';
 import { Folder, Star } from 'lucide-react';
 import ContextMenu from './ContextMenu';
@@ -94,7 +90,6 @@ export const FolderItem = ({
     );
   }
 
-  // Grid Card View
   return (
     <div
       onClick={() => onSelect?.(folder.id)}

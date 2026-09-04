@@ -1,5 +1,3 @@
-"""Integration tests for System Maintenance and background cleanup tasks."""
-
 from datetime import datetime, timedelta, timezone
 import uuid
 import pytest
@@ -24,7 +22,6 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
 @pytest.fixture(scope="function")
 def db_session():
     """Create an isolated database session."""
@@ -35,7 +32,6 @@ def db_session():
     finally:
         session.close()
         Base.metadata.drop_all(bind=engine)
-
 
 @pytest.fixture(scope="function")
 def client(db_session):
@@ -50,7 +46,6 @@ def client(db_session):
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
-
 
 @pytest.fixture(scope="function")
 def admin_user(db_session):
@@ -67,17 +62,15 @@ def admin_user(db_session):
     db_session.refresh(user)
     return user
 
-
 @pytest.fixture(scope="function")
 def auth_headers(admin_user):
     """Generate bearer token headers."""
     token = create_access_token(subject=str(admin_user.id))
     return {"Authorization": f"Bearer {token}"}
 
-
 def test_trash_retention_cleanup(client, auth_headers, db_session, admin_user):
     """Test auto-purging trash items older than threshold while preserving fresh trash."""
-    # 1. File deleted 45 days ago
+
     old_deleted_date = datetime.now(timezone.utc) - timedelta(days=45)
     old_file = File(
         name="old_trash.txt",
@@ -88,7 +81,7 @@ def test_trash_retention_cleanup(client, auth_headers, db_session, admin_user):
         is_deleted=True,
         deleted_at=old_deleted_date,
     )
-    # 2. File deleted 5 days ago (fresh)
+
     recent_deleted_date = datetime.now(timezone.utc) - timedelta(days=5)
     recent_file = File(
         name="recent_trash.txt",
@@ -102,7 +95,6 @@ def test_trash_retention_cleanup(client, auth_headers, db_session, admin_user):
     db_session.add_all([old_file, recent_file])
     db_session.commit()
 
-    # Dry run test
     resp_dry = client.post(
         "/api/v1/maintenance/cleanup-trash",
         headers=auth_headers,
@@ -114,7 +106,6 @@ def test_trash_retention_cleanup(client, auth_headers, db_session, admin_user):
     assert dry_data["dry_run"] is True
     assert dry_data["freed_bytes"] == 1000
 
-    # Actual cleanup test
     resp_act = client.post(
         "/api/v1/maintenance/cleanup-trash",
         headers=auth_headers,
@@ -125,10 +116,8 @@ def test_trash_retention_cleanup(client, auth_headers, db_session, admin_user):
     assert act_data["purged_files_count"] == 1
     assert act_data["dry_run"] is False
 
-    # Verify in DB: old_file purged, recent_file still present in trash
     assert db_session.get(File, old_file.id) is None
     assert db_session.get(File, recent_file.id) is not None
-
 
 def test_expired_links_cleanup(client, auth_headers, db_session, admin_user):
     """Test deactivating expired public links."""
@@ -159,7 +148,6 @@ def test_expired_links_cleanup(client, auth_headers, db_session, admin_user):
 
     db_session.refresh(expired_link)
     assert expired_link.is_active is False
-
 
 def test_system_status_endpoint(client, db_session, admin_user):
     """Test retrieving system health diagnostics."""

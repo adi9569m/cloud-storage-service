@@ -1,5 +1,3 @@
-"""Batch service executing bulk operations on mixed file and folder selections."""
-
 import io
 from typing import Dict, List, Optional, Set
 import uuid
@@ -22,7 +20,6 @@ from app.services.activity_service import ActivityService
 from app.services.file_service import FileService
 from app.services.folder_service import FolderService
 from app.services.storage_service import StorageService
-
 
 class BatchService:
     """Service handling bulk operations across multiple files and folders."""
@@ -57,7 +54,6 @@ class BatchService:
         succeeded_folders: List[uuid.UUID] = []
         failed: List[BatchFailureDetail] = []
 
-        # Process folders first
         for fid in folder_ids:
             try:
                 FolderService.soft_delete_folder(db=db, folder_id=fid, user_id=user_id, ip_address=ip_address)
@@ -66,7 +62,6 @@ class BatchService:
                 detail = getattr(exc, "detail", str(exc))
                 failed.append(BatchFailureDetail(id=fid, resource_type="folder", reason=str(detail)))
 
-        # Process files
         for fid in file_ids:
             try:
                 FileService.soft_delete_file(db=db, file_id=fid, user_id=user_id, ip_address=ip_address)
@@ -99,7 +94,6 @@ class BatchService:
         succeeded_folders: List[uuid.UUID] = []
         failed: List[BatchFailureDetail] = []
 
-        # Process folders
         for fid in folder_ids:
             try:
                 FolderService.restore_folder(db=db, folder_id=fid, user_id=user_id, ip_address=ip_address)
@@ -108,7 +102,6 @@ class BatchService:
                 detail = getattr(exc, "detail", str(exc))
                 failed.append(BatchFailureDetail(id=fid, resource_type="folder", reason=str(detail)))
 
-        # Process files
         for fid in file_ids:
             try:
                 FileService.restore_file(db=db, file_id=fid, user_id=user_id, ip_address=ip_address)
@@ -182,7 +175,6 @@ class BatchService:
         succeeded_folders: List[uuid.UUID] = []
         failed: List[BatchFailureDetail] = []
 
-        # Validate destination folder if not root
         if destination_folder_id is not None:
             dest = db.scalars(
                 select(Folder).where(
@@ -197,7 +189,6 @@ class BatchService:
                     detail="Destination folder not found.",
                 )
 
-        # Move folders
         for fid in folder_ids:
             try:
                 FolderService.move_folder(
@@ -212,7 +203,6 @@ class BatchService:
                 detail = getattr(exc, "detail", str(exc))
                 failed.append(BatchFailureDetail(id=fid, resource_type="folder", reason=str(detail)))
 
-        # Move files
         for fid in file_ids:
             try:
                 FileService.move_file(
@@ -298,7 +288,6 @@ class BatchService:
         succeeded_folders: List[uuid.UUID] = []
         failed: List[BatchFailureDetail] = []
 
-        # Process folders
         for fid in folder_ids:
             try:
                 folder = db.scalars(
@@ -321,7 +310,6 @@ class BatchService:
             except Exception as exc:
                 failed.append(BatchFailureDetail(id=fid, resource_type="folder", reason=str(exc)))
 
-        # Process files
         for fid in file_ids:
             try:
                 file = db.scalars(
@@ -370,7 +358,7 @@ class BatchService:
         total_uncompressed_bytes = 0
 
         with zipfile.ZipFile(zip_buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as zip_file:
-            # 1. Process explicit top-level files
+
             used_root_filenames: Set[str] = set()
             for fid in file_ids:
                 file = db.scalars(
@@ -387,7 +375,6 @@ class BatchService:
                         detail=f"Total download size exceeds max archive limit ({settings.MAX_ZIP_DOWNLOAD_BYTES} bytes).",
                     )
 
-                # Deduplicate name if needed
                 arcname = file.name
                 counter = 1
                 while arcname in used_root_filenames:
@@ -398,7 +385,6 @@ class BatchService:
 
                 zip_file.writestr(arcname, content)
 
-            # 2. Process folders recursively
             for folder_id in folder_ids:
                 root_folder = db.scalars(
                     select(Folder).where(
@@ -410,15 +396,12 @@ class BatchService:
                 if not root_folder:
                     continue
 
-                # Recursive walk helper
                 def add_folder_to_zip(current_folder: Folder, base_path: str) -> None:
                     nonlocal total_uncompressed_bytes
                     current_path = f"{base_path}/{current_folder.name}" if base_path else current_folder.name
 
-                    # Add empty directory entry
                     zip_file.writestr(f"{current_path}/", b"")
 
-                    # Add files in current folder
                     folder_files = db.scalars(
                         select(File).where(
                             File.folder_id == current_folder.id,
@@ -437,7 +420,6 @@ class BatchService:
                             )
                         zip_file.writestr(f"{current_path}/{ff.name}", data)
 
-                    # Subfolders
                     subfolders = db.scalars(
                         select(Folder).where(
                             Folder.parent_id == current_folder.id,

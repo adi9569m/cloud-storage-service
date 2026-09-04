@@ -1,8 +1,3 @@
-/**
- * Centralized Axios HTTP client instance with automatic JWT token attachment
- * and silent refresh interceptors.
- */
-
 import axios from 'axios';
 
 const API_BASE_URL = '/api/v1';
@@ -15,7 +10,6 @@ export const apiClient = axios.create({
   timeout: 30000,
 });
 
-// Request Interceptor: Attach Access Token
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -27,7 +21,6 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle 401 with Silent Refresh
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -47,7 +40,6 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Skip refresh on login/register/refresh endpoints themselves
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&

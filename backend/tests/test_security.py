@@ -1,5 +1,3 @@
-"""Unit tests for security utilities (password hashing and JWT tokens)."""
-
 from datetime import timedelta
 import uuid
 import pytest
@@ -12,25 +10,20 @@ from app.core.security import (
     decode_token,
 )
 
-
 def test_password_hashing():
     """Verify that password hashing and verification function correctly."""
     password = "SuperSecretPassword123!"
     hashed1 = hash_password(password)
     hashed2 = hash_password(password)
 
-    # Hashes should have different salts
     assert hashed1 != hashed2
     assert hashed1 != password
 
-    # Verification should succeed for correct password
     assert verify_password(password, hashed1) is True
     assert verify_password(password, hashed2) is True
 
-    # Verification should fail for wrong password
     assert verify_password("WrongPassword123!", hashed1) is False
     assert verify_password("", hashed1) is False
-
 
 def test_jwt_access_token_creation_and_decoding():
     """Verify access token creation, claims, and decoding."""
@@ -44,7 +37,6 @@ def test_jwt_access_token_creation_and_decoding():
     assert "exp" in payload
     assert "iat" in payload
 
-
 def test_jwt_refresh_token_creation_and_decoding():
     """Verify refresh token creation and claims."""
     user_id = uuid.uuid4()
@@ -54,7 +46,6 @@ def test_jwt_refresh_token_creation_and_decoding():
     assert payload["sub"] == str(user_id)
     assert payload["type"] == "refresh"
     assert payload["exp"] > payload["iat"]
-
 
 def test_jwt_token_expiration():
     """Verify that expired tokens raise jwt.ExpiredSignatureError."""
@@ -66,7 +57,6 @@ def test_jwt_token_expiration():
 
     with pytest.raises(jwt.ExpiredSignatureError):
         decode_token(expired_token)
-
 
 def test_jwt_invalid_token():
     """Verify that malformed or tampered tokens raise jwt.InvalidTokenError."""

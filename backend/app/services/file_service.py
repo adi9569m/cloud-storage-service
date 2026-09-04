@@ -1,8 +1,11 @@
-"""File management service handling upload flows, versioning, downloads, moves, copies, and stars."""
-
-from datetime import datetime, timezone
+import hashlib
+import io
+import mimetypes
+import os
 from typing import List, Optional, Set, Tuple
 import uuid
+import zipfile
+from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -13,6 +16,8 @@ from app.models.folder import Folder
 from app.models.star import Star
 from app.models.user import User
 from app.schemas.file import (
+    ArchiveExtractResponse,
+    ChecksumVerificationResponse,
     FileCopy,
     FileDetailResponse,
     FileDownloadResponse,
@@ -28,10 +33,10 @@ from app.schemas.file import (
     FileVersionInitResponse,
     FileVersionResponse,
 )
+from app.schemas.folder import FolderCreate
 from app.services.activity_service import ActivityService
 from app.services.folder_service import FolderService
 from app.services.storage_service import StorageService
-
 
 class FileService:
     """Business logic service for file storage, versions, metadata, and lifecycle."""
@@ -157,11 +162,10 @@ class FileService:
         ip_address: Optional[str] = None,
     ) -> FileUploadInitResponse:
         """Initiate presigned upload flow by creating pending metadata and signed URL."""
-        # Validate storage quota
+
         from app.services.storage_analytics_service import StorageAnalyticsService
         StorageAnalyticsService.validate_quota_available(db=db, user_id=user_id, incoming_bytes=init_in.size_bytes)
 
-        # 1. Validate parent folder if specified
         if init_in.folder_id is not None:
             parent = FolderService.get_folder_by_id(
                 db=db,
@@ -175,7 +179,6 @@ class FileService:
                     detail="Parent folder not found.",
                 )
 
-        # 2. Check for duplicate sibling name
         duplicate_query = select(File).where(
             File.owner_id == user_id,
             File.folder_id == init_in.folder_id,
@@ -188,7 +191,6 @@ class FileService:
                 detail=f"A file named '{init_in.name}' already exists in this location.",
             )
 
-        # 3. Generate IDs and storage path
         file_id = uuid.uuid4()
         clean_name = StorageService.sanitize_filename(init_in.name)
         storage_path = StorageService.generate_storage_path(
@@ -198,7 +200,6 @@ class FileService:
             filename=clean_name,
         )
 
-        # 4. Create initial File entity
         file = File(
             id=file_id,
             name=clean_name,
@@ -211,10 +212,8 @@ class FileService:
         db.add(file)
         db.flush()
 
-        # 5. Generate Presigned Upload URL
         upload_info = StorageService.generate_presigned_upload_url(storage_path=storage_path)
 
-        # 6. Audit logging
         ActivityService.log_activity(
             db=db,
             action="FILE_UPLOAD_INIT",
@@ -253,11 +252,9 @@ class FileService:
         """Confirm direct/presigned upload completion and register Version 1."""
         file = cls.get_file_by_id(db=db, file_id=complete_in.file_id, user_id=user_id, include_deleted=False)
 
-        # If actual size differs, update file size
         final_size = complete_in.actual_size_bytes if complete_in.actual_size_bytes is not None else file.size_bytes
         file.size_bytes = final_size
 
-        # Check if version 1 already created
         ver1 = db.scalars(
             select(FileVersion).where(
                 FileVersion.file_id == file.id,
@@ -277,12 +274,10 @@ class FileService:
             )
             db.add(ver1)
 
-            # Update User quota
             user = db.get(User, user_id)
             if user:
                 user.storage_used_bytes += final_size
 
-        # Audit activity
         ActivityService.log_activity(
             db=db,
             action="FILE_UPLOAD_COMPLETE",
@@ -314,11 +309,10 @@ class FileService:
         ip_address: Optional[str] = None,
     ) -> FileResponse:
         """Direct multipart binary file upload creating File and FileVersion v1."""
-        # Validate storage quota
+
         from app.services.storage_analytics_service import StorageAnalyticsService
         StorageAnalyticsService.validate_quota_available(db=db, user_id=user_id, incoming_bytes=len(file_bytes))
 
-        # 1. Validate parent folder if specified
         if folder_id is not None:
             parent = FolderService.get_folder_by_id(
                 db=db,
@@ -334,7 +328,6 @@ class FileService:
 
         clean_name = StorageService.sanitize_filename(filename)
 
-        # 2. Check for duplicate sibling name
         duplicate_query = select(File).where(
             File.owner_id == user_id,
             File.folder_id == folder_id,
@@ -347,7 +340,6 @@ class FileService:
                 detail=f"A file named '{clean_name}' already exists in this location.",
             )
 
-        # 3. Create ID and storage path
         file_id = uuid.uuid4()
         size_bytes = len(file_bytes)
         storage_path = StorageService.generate_storage_path(
@@ -357,11 +349,9 @@ class FileService:
             filename=clean_name,
         )
 
-        # 4. Save binary bytes to storage provider
         StorageService.save_file_bytes(storage_path=storage_path, file_bytes=file_bytes)
         checksum = StorageService.compute_checksum_sha256(file_bytes=file_bytes)
 
-        # 5. Create File entity
         file = File(
             id=file_id,
             name=clean_name,
@@ -374,7 +364,6 @@ class FileService:
         db.add(file)
         db.flush()
 
-        # 6. Create FileVersion 1
         ver1 = FileVersion(
             file_id=file.id,
             version_number=1,
@@ -386,12 +375,10 @@ class FileService:
         )
         db.add(ver1)
 
-        # 7. Update User quota
         user = db.get(User, user_id)
         if user:
             user.storage_used_bytes += size_bytes
 
-        # 8. Activity log
         ActivityService.log_activity(
             db=db,
             action="FILE_UPLOAD",
@@ -476,11 +463,9 @@ class FileService:
         )
         db.add(ver)
 
-        # Update active file pointer
         file.storage_path = storage_path
         file.size_bytes = size_bytes
 
-        # Update user quota
         user = db.get(User, user_id)
         if user:
             user.storage_used_bytes += size_bytes
@@ -768,7 +753,6 @@ class FileService:
                     detail="Destination folder not found.",
                 )
 
-        # Check duplicate name in destination
         dup = db.scalars(
             select(File).where(
                 File.owner_id == user_id,
@@ -832,7 +816,6 @@ class FileService:
 
         target_name = StorageService.sanitize_filename(new_name) if new_name else f"Copy of {file.name}"
 
-        # Sibling duplicate check
         dup = db.scalars(
             select(File).where(
                 File.owner_id == user_id,
@@ -855,12 +838,10 @@ class FileService:
             filename=target_name,
         )
 
-        # Clone binary blob in storage
         orig_bytes = StorageService.get_file_bytes(file.storage_path)
         if orig_bytes is not None:
             StorageService.save_file_bytes(new_storage_path, orig_bytes)
 
-        # Create new File
         new_file = File(
             id=new_file_id,
             name=target_name,
@@ -873,7 +854,6 @@ class FileService:
         db.add(new_file)
         db.flush()
 
-        # Create FileVersion 1
         new_ver = FileVersion(
             file_id=new_file.id,
             version_number=1,
@@ -884,7 +864,6 @@ class FileService:
         )
         db.add(new_ver)
 
-        # Update User quota
         user = db.get(User, user_id)
         if user:
             user.storage_used_bytes += file.size_bytes
@@ -956,7 +935,6 @@ class FileService:
         file.is_deleted = True
         file.deleted_at = datetime.now(timezone.utc)
 
-        # Remove star if starred
         stars = db.scalars(select(Star).where(Star.file_id == file.id)).all()
         for s in stars:
             db.delete(s)
@@ -988,7 +966,6 @@ class FileService:
         if not file.is_deleted:
             return file
 
-        # If parent folder is soft-deleted or does not exist, move to Root
         if file.folder_id is not None:
             parent = db.scalars(
                 select(Folder).where(Folder.id == file.folder_id, Folder.owner_id == user_id)
@@ -996,7 +973,6 @@ class FileService:
             if not parent or parent.is_deleted:
                 file.folder_id = None
 
-        # Check for active sibling duplicate
         dup = db.scalars(
             select(File).where(
                 File.owner_id == user_id,
@@ -1039,7 +1015,6 @@ class FileService:
         """Permanently delete file, versions, and storage blobs; decrement user quota."""
         file = cls.get_file_by_id(db=db, file_id=file_id, user_id=user_id, include_deleted=True)
 
-        # Retrieve all versions for total size calculation and storage purging
         versions = db.scalars(select(FileVersion).where(FileVersion.file_id == file.id)).all()
         total_freed_bytes = sum(v.size_bytes for v in versions) if versions else file.size_bytes
 
@@ -1127,11 +1102,9 @@ class FileService:
         if folder_id is not None:
             base_stmt = base_stmt.where(File.folder_id == folder_id)
 
-        # Count total
         count_stmt = select(func.count()).select_from(base_stmt.subquery())
         total_count = db.scalar(count_stmt) or 0
 
-        # Fetch page
         paged_stmt = base_stmt.order_by(File.name.asc()).limit(limit).offset(offset)
         files = db.scalars(paged_stmt).all()
 
@@ -1142,3 +1115,242 @@ class FileService:
         ]
 
         return FileListResponse(items=items, total_count=total_count)
+
+    @classmethod
+    def extract_zip_archive(
+        cls,
+        db: Session,
+        file_id: uuid.UUID,
+        user_id: uuid.UUID,
+        destination_folder_id: Optional[uuid.UUID] = None,
+        create_subfolder: bool = True,
+        ip_address: Optional[str] = None,
+    ) -> ArchiveExtractResponse:
+        file = cls.get_file_by_id(db=db, file_id=file_id, user_id=user_id, include_deleted=False)
+        is_zip = file.name.lower().endswith(".zip") or file.mime_type in [
+            "application/zip",
+            "application/x-zip-compressed",
+            "multipart/x-zip",
+        ]
+        if not is_zip:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Selected file is not a supported ZIP archive.",
+            )
+
+        archive_bytes = StorageService.get_file_bytes(file.storage_path)
+        if not archive_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Archive storage payload not found.",
+            )
+
+        try:
+            zip_buffer = io.BytesIO(archive_bytes)
+            zf = zipfile.ZipFile(zip_buffer, "r")
+        except zipfile.BadZipFile:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The archive file is corrupted or invalid ZIP format.",
+            )
+
+        from app.services.storage_analytics_service import StorageAnalyticsService
+        total_unpacked_size = sum(info.file_size for info in zf.infolist() if not info.is_dir())
+        StorageAnalyticsService.validate_quota_available(
+            db=db, user_id=user_id, incoming_bytes=total_unpacked_size
+        )
+
+        target_parent_id = destination_folder_id if destination_folder_id is not None else file.folder_id
+        if target_parent_id is not None:
+            FolderService.get_folder_by_id(db=db, folder_id=target_parent_id, user_id=user_id, include_deleted=False)
+
+        container_folder_name = None
+        current_root_folder_id = target_parent_id
+
+        if create_subfolder:
+            base_folder_name = file.name
+            if base_folder_name.lower().endswith(".zip"):
+                base_folder_name = base_folder_name[:-4]
+            clean_folder_name = StorageService.sanitize_filename(base_folder_name) or "Extracted Archive"
+
+            stmt = select(Folder).where(
+                Folder.owner_id == user_id,
+                Folder.parent_id == target_parent_id,
+                Folder.is_deleted.is_(False),
+                func.lower(Folder.name) == clean_folder_name.lower(),
+            )
+            existing_folder = db.scalars(stmt).first()
+            if existing_folder:
+                container_folder = existing_folder
+            else:
+                container_folder = FolderService.create_folder(
+                    db=db,
+                    user_id=user_id,
+                    folder_in=FolderCreate(name=clean_folder_name, parent_id=target_parent_id),
+                    ip_address=ip_address,
+                )
+            current_root_folder_id = container_folder.id
+            container_folder_name = container_folder.name
+
+        folder_map = {"": current_root_folder_id}
+        extracted_files_count = 0
+        extracted_folders_count = 1 if create_subfolder else 0
+
+        for info in zf.infolist():
+            norm_name = os.path.normpath(info.filename).replace("\\", "/")
+            if norm_name.startswith("/") or norm_name.startswith("../") or "/../" in norm_name or norm_name == "..":
+                continue
+
+            parts = [p for p in norm_name.split("/") if p and p != "."]
+            if not parts:
+                continue
+
+            if info.is_dir():
+                accum_path = ""
+                parent_fid = current_root_folder_id
+                for part in parts:
+                    clean_part = StorageService.sanitize_filename(part)
+                    if not clean_part:
+                        continue
+                    accum_path = f"{accum_path}/{clean_part}" if accum_path else clean_part
+                    if accum_path not in folder_map:
+                        stmt = select(Folder).where(
+                            Folder.owner_id == user_id,
+                            Folder.parent_id == parent_fid,
+                            Folder.is_deleted.is_(False),
+                            func.lower(Folder.name) == clean_part.lower(),
+                        )
+                        existing = db.scalars(stmt).first()
+                        if existing:
+                            folder_map[accum_path] = existing.id
+                        else:
+                            new_folder = FolderService.create_folder(
+                                db=db,
+                                user_id=user_id,
+                                folder_in=FolderCreate(name=clean_part, parent_id=parent_fid),
+                                ip_address=ip_address,
+                            )
+                            folder_map[accum_path] = new_folder.id
+                            extracted_folders_count += 1
+                    parent_fid = folder_map[accum_path]
+            else:
+                dir_parts = parts[:-1]
+                filename = parts[-1]
+                accum_path = ""
+                parent_fid = current_root_folder_id
+                for part in dir_parts:
+                    clean_part = StorageService.sanitize_filename(part)
+                    if not clean_part:
+                        continue
+                    accum_path = f"{accum_path}/{clean_part}" if accum_path else clean_part
+                    if accum_path not in folder_map:
+                        stmt = select(Folder).where(
+                            Folder.owner_id == user_id,
+                            Folder.parent_id == parent_fid,
+                            Folder.is_deleted.is_(False),
+                            func.lower(Folder.name) == clean_part.lower(),
+                        )
+                        existing = db.scalars(stmt).first()
+                        if existing:
+                            folder_map[accum_path] = existing.id
+                        else:
+                            new_folder = FolderService.create_folder(
+                                db=db,
+                                user_id=user_id,
+                                folder_in=FolderCreate(name=clean_part, parent_id=parent_fid),
+                                ip_address=ip_address,
+                            )
+                            folder_map[accum_path] = new_folder.id
+                            extracted_folders_count += 1
+                    parent_fid = folder_map[accum_path]
+
+                clean_fname = StorageService.sanitize_filename(filename)
+                if not clean_fname:
+                    clean_fname = "unnamed_file"
+
+                name_base, ext = os.path.splitext(clean_fname)
+                candidate_name = clean_fname
+                counter = 1
+                while True:
+                    dup_stmt = select(File).where(
+                        File.owner_id == user_id,
+                        File.folder_id == parent_fid,
+                        File.is_deleted.is_(False),
+                        func.lower(File.name) == candidate_name.lower(),
+                    )
+                    if not db.scalars(dup_stmt).first():
+                        break
+                    candidate_name = f"{name_base} ({counter}){ext}"
+                    counter += 1
+
+                file_data = zf.read(info.filename)
+                guessed_mime, _ = mimetypes.guess_type(candidate_name)
+                mime = guessed_mime or "application/octet-stream"
+
+                cls.direct_upload(
+                    db=db,
+                    user_id=user_id,
+                    file_bytes=file_data,
+                    filename=candidate_name,
+                    mime_type=mime,
+                    folder_id=parent_fid,
+                    ip_address=ip_address,
+                )
+                extracted_files_count += 1
+
+        ActivityService.log_activity(
+            db=db,
+            user_id=user_id,
+            action="ARCHIVE_EXTRACT",
+            resource_type="FILE",
+            resource_id=file.id,
+            details={
+                "archive_name": file.name,
+                "files_count": extracted_files_count,
+                "folders_count": extracted_folders_count,
+                "total_unpacked_bytes": total_unpacked_size,
+            },
+            ip_address=ip_address,
+        )
+
+        return ArchiveExtractResponse(
+            destination_folder_id=current_root_folder_id,
+            extracted_folder_name=container_folder_name,
+            files_count=extracted_files_count,
+            folders_count=extracted_folders_count,
+            total_unpacked_bytes=total_unpacked_size,
+        )
+
+    @classmethod
+    def verify_file_checksum(
+        cls,
+        db: Session,
+        file_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> ChecksumVerificationResponse:
+        file = cls.get_file_by_id(db=db, file_id=file_id, user_id=user_id, include_deleted=False)
+        stmt = (
+            select(FileVersion)
+            .where(FileVersion.file_id == file_id)
+            .order_by(FileVersion.version_number.desc())
+        )
+        latest_version = db.scalars(stmt).first()
+        if not latest_version:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active file versions found.")
+
+        data = StorageService.get_file_bytes(latest_version.storage_path)
+        if data is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Binary data not found in storage.")
+
+        actual_sha256 = hashlib.sha256(data).hexdigest()
+        is_valid = (latest_version.checksum_sha256 == actual_sha256) if latest_version.checksum_sha256 else True
+
+        return ChecksumVerificationResponse(
+            file_id=file.id,
+            version_number=latest_version.version_number,
+            expected_checksum=latest_version.checksum_sha256,
+            actual_checksum=actual_sha256,
+            is_valid=is_valid,
+            checked_at=datetime.now(timezone.utc),
+        )
+

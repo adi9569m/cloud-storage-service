@@ -1,5 +1,3 @@
-"""Preview service managing inline content streaming, Range headers, and text previews."""
-
 import os
 import re
 from typing import Optional, Tuple
@@ -14,7 +12,6 @@ from app.models.file import File
 from app.models.share import Share
 from app.schemas.preview import TextContentResponse
 from app.services.storage_service import StorageService
-
 
 class PreviewService:
     """Service providing inline preview streaming with HTTP Range support and text decoding."""
@@ -51,7 +48,6 @@ class PreviewService:
         if file.owner_id == user_id:
             return file
 
-        # Check direct share or folder share
         share = db.scalars(
             select(Share).where(
                 Share.grantee_id == user_id,
@@ -86,7 +82,6 @@ class PreviewService:
         safe_filename = StorageService.sanitize_filename(file.name)
         mime_type = file.mime_type or "application/octet-stream"
 
-        # Handle Range Header for video/audio seek & partial streams
         if range_header and range_header.startswith("bytes="):
             range_spec = range_header[6:].strip()
             parts = range_spec.split("-")
@@ -100,7 +95,7 @@ class PreviewService:
                     start = int(start_str)
                     end = total_size - 1
                 elif end_str:
-                    # Suffix range
+
                     start = max(0, total_size - int(end_str))
                     end = total_size - 1
                 else:
@@ -134,7 +129,6 @@ class PreviewService:
                 media_type=mime_type,
             )
 
-        # Full content inline response
         headers = {
             "Accept-Ranges": "bytes",
             "Content-Length": str(total_size),
@@ -159,7 +153,6 @@ class PreviewService:
         """Read and decode text/code content for in-browser viewing or code editor inspection."""
         file = cls._verify_file_access(db=db, file_id=file_id, user_id=user_id)
 
-        # Check if text format
         ext = file.name.rsplit(".", 1)[-1].lower() if "." in file.name else ""
         is_text_ext = ext in cls.TEXT_EXTENSIONS
         is_text_mime = any(re.search(pat, file.mime_type or "") for pat in cls.TEXT_MIME_PATTERNS)
@@ -172,13 +165,11 @@ class PreviewService:
 
         raw_bytes = StorageService.get_file_bytes(file.storage_path) or b""
 
-        # Check preview limit
         is_truncated = False
         if len(raw_bytes) > settings.MAX_PREVIEW_TEXT_BYTES:
             raw_bytes = raw_bytes[: settings.MAX_PREVIEW_TEXT_BYTES]
             is_truncated = True
 
-        # Decode
         try:
             text = raw_bytes.decode("utf-8")
             encoding = "utf-8"

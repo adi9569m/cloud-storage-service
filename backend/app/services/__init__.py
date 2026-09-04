@@ -1,5 +1,3 @@
-"""Services package containing business logic operations."""
-
 from app.services.user_service import UserService
 from app.services.auth_service import AuthService
 from app.services.activity_service import ActivityService

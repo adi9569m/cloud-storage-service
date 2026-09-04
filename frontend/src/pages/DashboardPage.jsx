@@ -1,7 +1,3 @@
-/**
- * Interactive Cloud Drive "My Drive" file and folder explorer dashboard.
- */
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
@@ -15,19 +11,16 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
-// Services
 import folderService from '../services/folderService';
 import fileService from '../services/fileService';
 import batchService from '../services/batchService';
 
-// Drive & Layout Components
 import Breadcrumbs from '../components/drive/Breadcrumbs';
 import ViewSwitcher from '../components/drive/ViewSwitcher';
 import FolderItem from '../components/drive/FolderItem';
 import FileItem from '../components/drive/FileItem';
 import BatchActionBar from '../components/drive/BatchActionBar';
 
-// Modals
 import CreateFolderModal from '../components/modals/CreateFolderModal';
 import FileUploadModal from '../components/modals/FileUploadModal';
 import FilePreviewModal from '../components/modals/FilePreviewModal';
@@ -37,38 +30,35 @@ import FileCommentsDrawer from '../components/modals/FileCommentsDrawer';
 import TagManagerModal from '../components/modals/TagManagerModal';
 import MoveCopyModal from '../components/modals/MoveCopyModal';
 import RenameModal from '../components/modals/RenameModal';
+import ExtractArchiveModal from '../components/modals/ExtractArchiveModal';
 
 export const DashboardPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentFolderId = searchParams.get('folder') || null;
 
-  // Data states
   const [contents, setContents] = useState({ folders: [], files: [], breadcrumbs: [] });
   const [currentFolderDetail, setCurrentFolderDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // View & Sort states
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
 
-  // Selection states
   const [selectedFolderIds, setSelectedFolderIds] = useState(new Set());
   const [selectedFileIds, setSelectedFileIds] = useState(new Set());
 
-  // Modal dialog states
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
-  const [shareTarget, setShareTarget] = useState(null); // { item, isFolder }
+  const [shareTarget, setShareTarget] = useState(null);
   const [versionTargetFile, setVersionTargetFile] = useState(null);
   const [commentTargetFile, setCommentTargetFile] = useState(null);
-  const [tagTarget, setTagTarget] = useState(null); // { item, isFolder }
-  const [moveCopyTarget, setMoveCopyTarget] = useState(null); // { item, isFolder, mode: 'move'|'copy' }
-  const [renameTarget, setRenameTarget] = useState(null); // { item, isFolder }
+  const [tagTarget, setTagTarget] = useState(null);
+  const [moveCopyTarget, setMoveCopyTarget] = useState(null);
+  const [renameTarget, setRenameTarget] = useState(null);
+  const [extractTargetFile, setExtractTargetFile] = useState(null);
 
-  // Load Folder Contents
   const loadContents = useCallback(async () => {
     setIsLoading(true);
     setError('');
@@ -105,7 +95,6 @@ export const DashboardPage = () => {
     return () => window.removeEventListener('drive-refresh', handleRefresh);
   }, [loadContents]);
 
-  // Handle Drag and Drop anywhere on dashboard
   const onDrop = useCallback(
     async (acceptedFiles) => {
       if (!acceptedFiles || acceptedFiles.length === 0) return;
@@ -120,7 +109,6 @@ export const DashboardPage = () => {
     noKeyboard: true,
   });
 
-  // Navigation handlers
   const handleNavigateFolder = (folderId) => {
     if (folderId) {
       setSearchParams({ folder: folderId });
@@ -129,7 +117,6 @@ export const DashboardPage = () => {
     }
   };
 
-  // Selection handlers
   const handleSelectFolder = (id) => {
     setSelectedFolderIds((prev) => {
       const next = new Set(prev);
@@ -153,7 +140,6 @@ export const DashboardPage = () => {
     setSelectedFileIds(new Set());
   };
 
-  // Star toggle
   const handleToggleStarFolder = async (folder) => {
     try {
       await folderService.toggleStar(folder.id);
@@ -172,7 +158,6 @@ export const DashboardPage = () => {
     }
   };
 
-  // Single Delete handlers
   const handleDeleteFolder = async (folder) => {
     if (window.confirm(`Move folder "${folder.name}" and all its contents to Trash?`)) {
       try {
@@ -195,7 +180,6 @@ export const DashboardPage = () => {
     }
   };
 
-  // Batch Operations
   const handleBatchDownload = async () => {
     try {
       await batchService.batchDownloadZip({
@@ -243,7 +227,6 @@ export const DashboardPage = () => {
     <div {...getRootProps()} className="min-h-full space-y-6 relative outline-none pb-16">
       <input {...getInputProps()} />
 
-      {/* Drag overlay indicator */}
       {isDragActive && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-drive-900/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3 rounded-3xl bg-white p-8 text-center shadow-2xl">
@@ -258,7 +241,6 @@ export const DashboardPage = () => {
         </div>
       )}
 
-      {/* Breadcrumb Navigation & Action Toolbar */}
       <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 md:flex-row md:items-center md:justify-between">
         <Breadcrumbs
           breadcrumbs={contents.breadcrumbs || []}
@@ -312,7 +294,6 @@ export const DashboardPage = () => {
         </div>
       )}
 
-      {/* Main Content Areas */}
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">
           <div className="flex flex-col items-center gap-3 text-slate-400">
@@ -321,7 +302,7 @@ export const DashboardPage = () => {
           </div>
         </div>
       ) : contents.folders?.length === 0 && contents.files?.length === 0 ? (
-        /* Empty State */
+
         <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-white p-12 text-center shadow-sm">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-drive-50 text-drive-600 mb-4">
             <UploadCloud className="h-8 w-8" />
@@ -333,7 +314,7 @@ export const DashboardPage = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Folders Section */}
+
           {contents.folders?.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -367,7 +348,6 @@ export const DashboardPage = () => {
             </div>
           )}
 
-          {/* Files Section */}
           {contents.files?.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -389,6 +369,7 @@ export const DashboardPage = () => {
                     onSelect={handleSelectFile}
                     onPreview={(f) => setPreviewFile(f)}
                     onDownload={(f) => fileService.downloadFile(f.id, f.name)}
+                    onExtract={(f) => setExtractTargetFile(f)}
                     onShare={(f) => setShareTarget({ item: f, isFolder: false })}
                     onToggleStar={handleToggleStarFile}
                     onRename={(f) => setRenameTarget({ item: f, isFolder: false })}
@@ -406,7 +387,6 @@ export const DashboardPage = () => {
         </div>
       )}
 
-      {/* Floating Batch Action Bar */}
       <BatchActionBar
         selectedCount={totalSelected}
         onClearSelection={handleClearSelection}
@@ -415,7 +395,6 @@ export const DashboardPage = () => {
         onBatchDelete={handleBatchDelete}
       />
 
-      {/* Modals & Drawers */}
       <CreateFolderModal
         isOpen={isCreateFolderOpen}
         onClose={() => setIsCreateFolderOpen(false)}
@@ -482,6 +461,14 @@ export const DashboardPage = () => {
         item={renameTarget?.item}
         isFolder={renameTarget?.isFolder}
         onClose={() => setRenameTarget(null)}
+        onSuccess={loadContents}
+      />
+
+      <ExtractArchiveModal
+        isOpen={Boolean(extractTargetFile)}
+        file={extractTargetFile}
+        currentFolderId={currentFolderId}
+        onClose={() => setExtractTargetFile(null)}
         onSuccess={loadContents}
       />
     </div>

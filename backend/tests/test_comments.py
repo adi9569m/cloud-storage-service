@@ -1,5 +1,3 @@
-"""Integration tests for file collaboration comments and permissions."""
-
 import uuid
 import pytest
 from fastapi.testclient import TestClient
@@ -22,7 +20,6 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
 @pytest.fixture(scope="function")
 def db_session():
     """Create an isolated database session."""
@@ -33,7 +30,6 @@ def db_session():
     finally:
         session.close()
         Base.metadata.drop_all(bind=engine)
-
 
 @pytest.fixture(scope="function")
 def client(db_session):
@@ -49,7 +45,6 @@ def client(db_session):
         yield test_client
     app.dependency_overrides.clear()
 
-
 @pytest.fixture(scope="function")
 def owner_user(db_session):
     """Create file owner user."""
@@ -63,7 +58,6 @@ def owner_user(db_session):
     db_session.commit()
     db_session.refresh(user)
     return user
-
 
 @pytest.fixture(scope="function")
 def collaborator_user(db_session):
@@ -79,7 +73,6 @@ def collaborator_user(db_session):
     db_session.refresh(user)
     return user
 
-
 @pytest.fixture(scope="function")
 def stranger_user(db_session):
     """Create unrelated user."""
@@ -93,7 +86,6 @@ def stranger_user(db_session):
     db_session.commit()
     db_session.refresh(user)
     return user
-
 
 @pytest.fixture(scope="function")
 def test_file(db_session, owner_user, collaborator_user):
@@ -109,7 +101,6 @@ def test_file(db_session, owner_user, collaborator_user):
     db_session.add(file)
     db_session.flush()
 
-    # Share file with collaborator
     share = Share(
         granter_id=owner_user.id,
         grantee_id=collaborator_user.id,
@@ -119,7 +110,6 @@ def test_file(db_session, owner_user, collaborator_user):
     db_session.add(share)
     db_session.commit()
     return file
-
 
 def test_comments_collaboration_flow(client, owner_user, collaborator_user, stranger_user, test_file):
     """Test full file comments lifecycle across multiple users."""
@@ -134,7 +124,6 @@ def test_comments_collaboration_flow(client, owner_user, collaborator_user, stra
 
     file_id = str(test_file.id)
 
-    # 1. Owner posts comment
     resp1 = client.post(
         f"/api/v1/files/{file_id}/comments",
         headers=owner_headers,
@@ -146,7 +135,6 @@ def test_comments_collaboration_flow(client, owner_user, collaborator_user, stra
     assert c1["author"]["email"] == "owner@example.com"
     assert c1["author"]["full_name"] == "Alice Owner"
 
-    # 2. Collaborator posts reply
     resp2 = client.post(
         f"/api/v1/files/{file_id}/comments",
         headers=collab_headers,
@@ -156,7 +144,6 @@ def test_comments_collaboration_flow(client, owner_user, collaborator_user, stra
     c2 = resp2.json()
     assert c2["author"]["email"] == "collab@example.com"
 
-    # 3. Stranger tries to comment (should be rejected with 403)
     resp_unauth = client.post(
         f"/api/v1/files/{file_id}/comments",
         headers=stranger_headers,
@@ -164,7 +151,6 @@ def test_comments_collaboration_flow(client, owner_user, collaborator_user, stra
     )
     assert resp_unauth.status_code == 403
 
-    # 4. List comments
     resp_list = client.get(f"/api/v1/files/{file_id}/comments", headers=collab_headers)
     assert resp_list.status_code == 200
     comments = resp_list.json()["comments"]
@@ -172,7 +158,6 @@ def test_comments_collaboration_flow(client, owner_user, collaborator_user, stra
     assert comments[0]["content"] == "Please review Section 3."
     assert comments[1]["content"] == "Looks good! Left minor edits."
 
-    # 5. Collaborator edits their comment
     c2_id = c2["id"]
     resp_edit = client.put(
         f"/api/v1/files/comments/{c2_id}",
@@ -182,10 +167,8 @@ def test_comments_collaboration_flow(client, owner_user, collaborator_user, stra
     assert resp_edit.status_code == 200
     assert resp_edit.json()["content"] == "Looks good! Fully approved."
 
-    # 6. Owner deletes collaborator's comment (file owner has moderation permissions)
     resp_del_mod = client.delete(f"/api/v1/files/comments/{c2_id}", headers=owner_headers)
     assert resp_del_mod.status_code == 204
 
-    # Verify only 1 comment left
     resp_final = client.get(f"/api/v1/files/{file_id}/comments", headers=owner_headers)
     assert len(resp_final.json()["comments"]) == 1

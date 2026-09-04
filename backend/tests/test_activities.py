@@ -1,5 +1,3 @@
-"""Integration tests for audit trail activity logging and timeline feeds."""
-
 import io
 import pytest
 from fastapi.testclient import TestClient
@@ -19,7 +17,6 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
 @pytest.fixture(scope="function")
 def db_session():
     """Create an isolated database session."""
@@ -30,7 +27,6 @@ def db_session():
     finally:
         session.close()
         Base.metadata.drop_all(bind=engine)
-
 
 @pytest.fixture(scope="function")
 def client(db_session):
@@ -45,7 +41,6 @@ def client(db_session):
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
-
 
 @pytest.fixture(scope="function")
 def test_user(db_session):
@@ -62,7 +57,6 @@ def test_user(db_session):
     db_session.refresh(user)
     return user
 
-
 @pytest.fixture(scope="function")
 def other_user(db_session):
     """Create second user."""
@@ -78,18 +72,15 @@ def other_user(db_session):
     db_session.refresh(user)
     return user
 
-
 def test_activity_logging_and_stream_filtering(client, test_user):
     """Test user operations record activity logs and can be filtered by action and resource type."""
     token = create_access_token(subject=str(test_user.id))
     headers = {"Authorization": f"Bearer {token}"}
 
-    # 1. Create a folder -> FOLDER_CREATE activity
     folder_res = client.post("/api/v1/folders", json={"name": "Engineering"}, headers=headers)
     assert folder_res.status_code == 201
     folder_id = folder_res.json()["id"]
 
-    # 2. Upload a file -> FILE_UPLOAD activity
     file_res = client.post(
         "/api/v1/files/upload",
         files={"file": ("design_doc.pdf", io.BytesIO(b"Architecture Doc"), "application/pdf")},
@@ -99,7 +90,6 @@ def test_activity_logging_and_stream_filtering(client, test_user):
     assert file_res.status_code == 201
     file_id = file_res.json()["id"]
 
-    # 3. Create a public link -> LINK_SHARE_CREATED activity
     link_res = client.post(
         "/api/v1/links",
         json={"file_id": file_id, "role": "VIEWER"},
@@ -107,7 +97,6 @@ def test_activity_logging_and_stream_filtering(client, test_user):
     )
     assert link_res.status_code == 201
 
-    # 4. Fetch activity stream
     stream_res = client.get("/api/v1/activities", headers=headers)
     assert stream_res.status_code == 200
     data = stream_res.json()
@@ -117,25 +106,21 @@ def test_activity_logging_and_stream_filtering(client, test_user):
     assert "FILE_UPLOAD" in actions
     assert "LINK_SHARE_CREATED" in actions
 
-    # 5. Filter by resource_type = FILE
     file_filter_res = client.get("/api/v1/activities?resource_type=FILE", headers=headers)
     assert file_filter_res.status_code == 200
     for item in file_filter_res.json()["items"]:
         assert item["resource_type"] == "FILE"
 
-    # 6. Filter by action = FOLDER_CREATE
     folder_filter_res = client.get("/api/v1/activities?action=FOLDER_CREATE", headers=headers)
     assert folder_filter_res.status_code == 200
     assert len(folder_filter_res.json()["items"]) == 1
     assert folder_filter_res.json()["items"][0]["action"] == "FOLDER_CREATE"
-
 
 def test_resource_audit_trail(client, test_user, other_user):
     """Test retrieving activity log for a specific resource."""
     user_token = create_access_token(subject=str(test_user.id))
     other_token = create_access_token(subject=str(other_user.id))
 
-    # Upload file
     upload_res = client.post(
         "/api/v1/files/upload",
         files={"file": ("contract.pdf", io.BytesIO(b"Legal Contract"), "application/pdf")},
@@ -143,14 +128,12 @@ def test_resource_audit_trail(client, test_user, other_user):
     )
     file_id = upload_res.json()["id"]
 
-    # Update file name
     client.put(
         f"/api/v1/files/{file_id}",
         json={"name": "signed_contract.pdf"},
         headers={"Authorization": f"Bearer {user_token}"},
     )
 
-    # Resource audit trail
     audit_res = client.get(
         f"/api/v1/activities/resource/FILE/{file_id}",
         headers={"Authorization": f"Bearer {user_token}"},
@@ -162,7 +145,6 @@ def test_resource_audit_trail(client, test_user, other_user):
     assert "FILE_UPLOAD" in actions
     assert "FILE_RENAME" in actions
 
-    # Other user denied access -> 403 Forbidden
     denied_res = client.get(
         f"/api/v1/activities/resource/FILE/{file_id}",
         headers={"Authorization": f"Bearer {other_token}"},

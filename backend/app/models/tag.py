@@ -1,5 +1,3 @@
-"""Tag and ItemTag SQLAlchemy ORM models for organizing files and folders with color labels."""
-
 from datetime import datetime, timezone
 import uuid
 from typing import List, Optional, TYPE_CHECKING
@@ -14,7 +12,6 @@ if TYPE_CHECKING:
     from app.models.user import User
     from app.models.file import File
     from app.models.folder import Folder
-
 
 class ItemTag(Base, UUIDPrimaryKeyMixin):
     """Association entity linking tags to files or folders."""
@@ -47,7 +44,6 @@ class ItemTag(Base, UUIDPrimaryKeyMixin):
         UniqueConstraint("tag_id", "folder_id", name="uq_item_tags_tag_folder"),
     )
 
-
 class Tag(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     """Custom color-coded tag entity created by users."""
 
@@ -71,7 +67,6 @@ class Tag(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         doc="Owner user who created the tag.",
     )
 
-    # Relationships
     user: Mapped["User"] = relationship("User", back_populates="tags")
 
     __table_args__ = (

@@ -1,5 +1,3 @@
-"""Tag service managing custom color labels, item attachment, and tag filtering."""
-
 from typing import List, Optional
 import uuid
 from fastapi import HTTPException, status
@@ -19,7 +17,6 @@ from app.schemas.tag import (
 )
 from app.services.file_service import FileService
 from app.services.folder_service import FolderService
-
 
 class TagService:
     """Service handling CRUD and item labeling operations for custom tags."""
@@ -138,7 +135,7 @@ class TagService:
             )
 
         if attach_in.file_id is not None:
-            # Verify file exists
+
             FileService.get_file_by_id(db=db, file_id=attach_in.file_id, user_id=user_id, include_deleted=False)
             existing = db.scalars(
                 select(ItemTag).where(ItemTag.tag_id == tag.id, ItemTag.file_id == attach_in.file_id)
@@ -147,7 +144,7 @@ class TagService:
                 db.add(ItemTag(tag_id=tag.id, file_id=attach_in.file_id))
 
         if attach_in.folder_id is not None:
-            # Verify folder exists
+
             FolderService.get_folder_by_id(db=db, folder_id=attach_in.folder_id, user_id=user_id, include_deleted=False)
             existing = db.scalars(
                 select(ItemTag).where(ItemTag.tag_id == tag.id, ItemTag.folder_id == attach_in.folder_id)
@@ -183,11 +180,10 @@ class TagService:
         """Fetch all active files and folders labeled with a specific tag."""
         tag = cls.get_tag_by_id(db=db, tag_id=tag_id, user_id=user_id)
 
-        # Get file IDs
         file_ids = db.scalars(
             select(ItemTag.file_id).where(ItemTag.tag_id == tag.id, ItemTag.file_id.is_not(None))
         ).all()
-        # Get folder IDs
+
         folder_ids = db.scalars(
             select(ItemTag.folder_id).where(ItemTag.tag_id == tag.id, ItemTag.folder_id.is_not(None))
         ).all()

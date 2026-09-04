@@ -1,7 +1,3 @@
-/**
- * Shared with me page displaying items shared by colleagues.
- */
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -30,7 +26,6 @@ export const SharedPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Modals
   const [previewFile, setPreviewFile] = useState(null);
   const [commentTargetFile, setCommentTargetFile] = useState(null);
   const [copyTargetFile, setCopyTargetFile] = useState(null);
@@ -56,7 +51,7 @@ export const SharedPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-800">Shared with me</h1>
@@ -79,7 +74,6 @@ export const SharedPage = () => {
         </div>
       )}
 
-      {/* Content */}
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">
           <RefreshCw className="h-8 w-8 animate-spin text-drive-600" />
@@ -116,7 +110,7 @@ export const SharedPage = () => {
                 key={share.id}
                 className="grid grid-cols-12 items-center px-4 py-3 text-xs hover:bg-slate-50 transition-colors"
               >
-                {/* Item Icon & Name */}
+
                 <div className="col-span-5 sm:col-span-6 flex items-center gap-3 overflow-hidden">
                   {isFolder ? (
                     <FolderIcon
@@ -151,7 +145,6 @@ export const SharedPage = () => {
                   </div>
                 </div>
 
-                {/* Granter & Role Badge */}
                 <div className="col-span-4 sm:col-span-3 overflow-hidden">
                   <p className="truncate font-medium text-slate-700">
                     {share.granter_email || 'Drive User'}
@@ -167,7 +160,6 @@ export const SharedPage = () => {
                   </span>
                 </div>
 
-                {/* Actions */}
                 <div className="col-span-3 sm:col-span-3 flex items-center justify-end gap-1.5">
                   {!isFolder && (
                     <>
@@ -217,7 +209,6 @@ export const SharedPage = () => {
         </div>
       )}
 
-      {/* Modals */}
       <FilePreviewModal
         isOpen={Boolean(previewFile)}
         file={previewFile}

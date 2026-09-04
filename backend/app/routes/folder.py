@@ -1,5 +1,3 @@
-"""Folder management API routes for directory creation, navigation, moves, cascades, and favorites."""
-
 from typing import List, Optional
 import uuid
 from fastapi import APIRouter, Depends, Query, Request, status
@@ -21,7 +19,6 @@ from app.services.folder_service import FolderService
 from app.services.batch_service import BatchService
 
 router = APIRouter(prefix="/folders", tags=["Folders"])
-
 
 @router.post(
     "",
@@ -58,7 +55,6 @@ def create_folder(
         is_starred=is_starred,
     )
 
-
 @router.get(
     "",
     response_model=FolderContentsResponse,
@@ -81,7 +77,6 @@ def list_root_contents(
         sort_order=sort_order,
     )
 
-
 @router.get(
     "/tree",
     response_model=List[FolderTreeItem],
@@ -98,7 +93,6 @@ def get_folder_tree(
         db=db,
         user_id=current_user.id,
     )
-
 
 @router.get(
     "/{folder_id}",
@@ -118,7 +112,6 @@ def get_folder_detail(
         folder_id=folder_id,
         user_id=current_user.id,
     )
-
 
 @router.get(
     "/{folder_id}/contents",
@@ -142,7 +135,6 @@ def get_folder_contents(
         sort_by=sort_by,
         sort_order=sort_order,
     )
-
 
 @router.put(
     "/{folder_id}",
@@ -181,7 +173,6 @@ def update_folder(
         is_starred=is_starred,
     )
 
-
 @router.post(
     "/{folder_id}/move",
     response_model=FolderResponse,
@@ -219,7 +210,6 @@ def move_folder(
         is_starred=is_starred,
     )
 
-
 @router.post(
     "/{folder_id}/star",
     response_model=dict,
@@ -243,7 +233,6 @@ def toggle_star_folder(
         "is_starred": is_starred,
         "message": "Folder starred." if is_starred else "Folder unstarred.",
     }
-
 
 @router.delete(
     "/{folder_id}",
@@ -278,7 +267,6 @@ def soft_delete_folder(
         updated_at=folder.updated_at,
         is_starred=False,
     )
-
 
 @router.post(
     "/{folder_id}/restore",
@@ -315,7 +303,6 @@ def restore_folder(
         is_starred=is_starred,
     )
 
-
 @router.delete(
     "/{folder_id}/permanent",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -336,7 +323,6 @@ def permanent_delete_folder(
         user_id=current_user.id,
         ip_address=ip_address,
     )
-
 
 @router.get(
     "/{folder_id}/download-zip",

@@ -1,5 +1,3 @@
-"""File management API routes for uploads, versioning, downloads, metadata, moves, copies, and stars."""
-
 from typing import List, Optional
 import uuid
 from fastapi import APIRouter, Depends, File as FastAPIFile, Form, Query, Request, Response, UploadFile, status
@@ -9,6 +7,9 @@ from app.core.database import get_db
 from app.models.user import User
 from app.routes.deps import get_current_active_user
 from app.schemas.file import (
+    ArchiveExtractRequest,
+    ArchiveExtractResponse,
+    ChecksumVerificationResponse,
     FileCopy,
     FileDetailResponse,
     FileDownloadResponse,
@@ -29,12 +30,6 @@ from app.services.file_service import FileService
 from app.services.preview_service import PreviewService
 
 router = APIRouter(prefix="/files", tags=["Files"])
-
-
-# ============================================================================
-# 1. File Uploads (Direct & Presigned)
-# ============================================================================
-
 
 @router.post(
     "/upload",
@@ -63,7 +58,6 @@ async def direct_upload_file(
         ip_address=ip_address,
     )
 
-
 @router.post(
     "/init-upload",
     response_model=FileUploadInitResponse,
@@ -85,7 +79,6 @@ def init_file_upload(
         init_in=init_in,
         ip_address=ip_address,
     )
-
 
 @router.post(
     "/complete-upload",
@@ -109,12 +102,6 @@ def complete_file_upload(
         ip_address=ip_address,
     )
 
-
-# ============================================================================
-# 2. File Collections & Search (Fixed Paths Before Parametric Paths)
-# ============================================================================
-
-
 @router.get(
     "/starred/all",
     response_model=List[FileResponse],
@@ -129,7 +116,6 @@ def list_starred_files(
     """List starred files."""
     return FileService.list_starred_files(db=db, user_id=current_user.id)
 
-
 @router.get(
     "/trash/all",
     response_model=List[FileResponse],
@@ -143,7 +129,6 @@ def list_trash_files(
 ) -> List[FileResponse]:
     """List files in trash."""
     return FileService.list_trash_files(db=db, user_id=current_user.id)
-
 
 @router.get(
     "/search/query",
@@ -174,12 +159,6 @@ def search_files(
         offset=offset,
     )
 
-
-# ============================================================================
-# 3. File Versions
-# ============================================================================
-
-
 @router.post(
     "/{file_id}/versions/upload",
     response_model=FileResponse,
@@ -206,7 +185,6 @@ async def direct_upload_version(
         ip_address=ip_address,
     )
 
-
 @router.post(
     "/{file_id}/versions/init-upload",
     response_model=FileVersionInitResponse,
@@ -230,7 +208,6 @@ def init_version_upload(
         version_in=version_in,
         ip_address=ip_address,
     )
-
 
 @router.post(
     "/{file_id}/versions/complete-upload",
@@ -256,7 +233,6 @@ def complete_version_upload(
         ip_address=ip_address,
     )
 
-
 @router.get(
     "/{file_id}/versions",
     response_model=List[FileVersionResponse],
@@ -275,7 +251,6 @@ def list_file_versions(
         file_id=file_id,
         user_id=current_user.id,
     )
-
 
 @router.get(
     "/{file_id}/versions/{version_number}/download-url",
@@ -300,7 +275,6 @@ def get_version_download_url(
         version_number=version_number,
         ip_address=ip_address,
     )
-
 
 @router.get(
     "/{file_id}/versions/{version_number}/download",
@@ -330,12 +304,6 @@ def download_version_stream(
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
-
-# ============================================================================
-# 4. File Detail, Download & Management
-# ============================================================================
-
-
 @router.get(
     "/{file_id}",
     response_model=FileDetailResponse,
@@ -354,7 +322,6 @@ def get_file_detail(
         file_id=file_id,
         user_id=current_user.id,
     )
-
 
 @router.get(
     "/{file_id}/download-url",
@@ -377,7 +344,6 @@ def get_file_download_url(
         user_id=current_user.id,
         ip_address=ip_address,
     )
-
 
 @router.get(
     "/{file_id}/download",
@@ -405,7 +371,6 @@ def download_file_stream(
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
-
 @router.put(
     "/{file_id}",
     response_model=FileResponse,
@@ -430,7 +395,6 @@ def update_file(
         ip_address=ip_address,
     )
 
-
 @router.post(
     "/{file_id}/move",
     response_model=FileResponse,
@@ -454,7 +418,6 @@ def move_file(
         destination_folder_id=move_in.destination_folder_id,
         ip_address=ip_address,
     )
-
 
 @router.post(
     "/{file_id}/copy",
@@ -481,7 +444,6 @@ def copy_file(
         ip_address=ip_address,
     )
 
-
 @router.post(
     "/{file_id}/star",
     response_model=dict,
@@ -505,7 +467,6 @@ def toggle_star_file(
         "is_starred": is_starred,
         "message": "File starred." if is_starred else "File unstarred.",
     }
-
 
 @router.delete(
     "/{file_id}",
@@ -543,7 +504,6 @@ def soft_delete_file(
         is_starred=False,
         current_version_number=FileService.get_current_version_number(db, file.id),
     )
-
 
 @router.post(
     "/{file_id}/restore",
@@ -583,7 +543,6 @@ def restore_file(
         current_version_number=FileService.get_current_version_number(db, file.id),
     )
 
-
 @router.delete(
     "/{file_id}/permanent",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -605,12 +564,6 @@ def permanent_delete_file(
         ip_address=ip_address,
     )
 
-
-# ============================================================================
-# File Content Previews & Text Inspection
-# ============================================================================
-
-
 @router.get(
     "/{file_id}/preview",
     summary="Stream file preview",
@@ -631,7 +584,6 @@ def preview_file(
         range_header=range_header,
     )
 
-
 @router.get(
     "/{file_id}/text-content",
     response_model=TextContentResponse,
@@ -649,3 +601,47 @@ def get_text_content(
         file_id=file_id,
         user_id=current_user.id,
     )
+
+@router.post(
+    "/{file_id}/extract",
+    response_model=ArchiveExtractResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Extract ZIP archive",
+    description="Unpack a ZIP archive file directly into destination folder or auto-created container folder.",
+)
+def extract_zip_archive(
+    file_id: uuid.UUID,
+    payload: ArchiveExtractRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> ArchiveExtractResponse:
+    """Extract zip archive files and nested folder hierarchy directly into drive."""
+    ip_address = request.client.host if request.client else None
+    return FileService.extract_zip_archive(
+        db=db,
+        file_id=file_id,
+        user_id=current_user.id,
+        destination_folder_id=payload.destination_folder_id,
+        create_subfolder=payload.create_subfolder,
+        ip_address=ip_address,
+    )
+
+@router.post(
+    "/{file_id}/verify-checksum",
+    response_model=ChecksumVerificationResponse,
+    summary="Verify file checksum integrity",
+    description="Compute active file version SHA-256 and verify against database registered checksum.",
+)
+def verify_file_checksum(
+    file_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> ChecksumVerificationResponse:
+    """Validate binary checksum of stored file."""
+    return FileService.verify_file_checksum(
+        db=db,
+        file_id=file_id,
+        user_id=current_user.id,
+    )
+

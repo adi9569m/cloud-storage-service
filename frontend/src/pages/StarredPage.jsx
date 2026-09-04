@@ -1,7 +1,3 @@
-/**
- * Starred favorite items page.
- */
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, RefreshCw } from 'lucide-react';
@@ -28,7 +24,6 @@ export const StarredPage = () => {
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
 
-  // Modals
   const [previewFile, setPreviewFile] = useState(null);
   const [shareTarget, setShareTarget] = useState(null);
   const [renameTarget, setRenameTarget] = useState(null);
@@ -74,7 +69,7 @@ export const StarredPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-800">Starred</h1>
@@ -111,7 +106,6 @@ export const StarredPage = () => {
         </div>
       )}
 
-      {/* Content */}
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">
           <RefreshCw className="h-8 w-8 animate-spin text-drive-600" />
@@ -128,7 +122,7 @@ export const StarredPage = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Folders */}
+
           {folders.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -157,7 +151,6 @@ export const StarredPage = () => {
             </div>
           )}
 
-          {/* Files */}
           {files.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -188,7 +181,6 @@ export const StarredPage = () => {
         </div>
       )}
 
-      {/* Modals */}
       <FilePreviewModal
         isOpen={Boolean(previewFile)}
         file={previewFile}

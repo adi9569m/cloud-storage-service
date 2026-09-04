@@ -1,8 +1,3 @@
-/**
- * Root React application component configuring TanStack Query, Auth Provider,
- * and React Router navigation.
- */
-
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -11,11 +6,9 @@ import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AppLayout from './components/layout/AppLayout';
 
-// Auth Pages
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 
-// App Views
 import DashboardPage from './pages/DashboardPage';
 import RecentPage from './pages/RecentPage';
 import StoragePage from './pages/StoragePage';
@@ -34,7 +27,7 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 1000 * 60 * 2, // 2 minutes
+      staleTime: 1000 * 60 * 2,
     },
   },
 });
@@ -46,15 +39,13 @@ export function App() {
         <ToastProvider>
           <BrowserRouter>
             <Routes>
-              {/* Public Authentication Routes */}
+
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
 
-              {/* Public Unauthenticated Share Viewer */}
               <Route path="/share/:token" element={<PublicSharePage />} />
               <Route path="/public/links/:token" element={<PublicSharePage />} />
 
-              {/* Protected Drive Application Layout */}
               <Route
                 path="/"
                 element={
@@ -76,7 +67,6 @@ export function App() {
                 <Route path="storage" element={<StoragePage />} />
               </Route>
 
-              {/* Fallback 404 Route */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </BrowserRouter>

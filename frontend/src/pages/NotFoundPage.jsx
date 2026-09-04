@@ -1,7 +1,3 @@
-/**
- * 404 Not Found fallback view.
- */
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { CloudOff, ArrowLeft } from 'lucide-react';

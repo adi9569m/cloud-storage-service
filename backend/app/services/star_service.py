@@ -1,5 +1,3 @@
-"""Star service handling bookmarking/favorites for files and folders."""
-
 from typing import List, Optional
 import uuid
 from fastapi import HTTPException, status
@@ -13,7 +11,6 @@ from app.schemas.folder import FolderResponse
 from app.schemas.star import StarredListResponse, StarToggleResponse
 from app.services.activity_service import ActivityService
 from app.services.share_service import ShareService
-
 
 class StarService:
     """Business logic for starring/unstarring files and folders and retrieving favorites."""

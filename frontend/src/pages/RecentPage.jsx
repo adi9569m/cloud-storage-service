@@ -1,7 +1,3 @@
-/**
- * Recent Files page grouping files chronologically (Today, Yesterday, This Week, Older).
- */
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Clock,
@@ -24,7 +20,6 @@ import fileService from '../services/fileService';
 import starService from '../services/starService';
 import { formatBytes, formatDate, getFileIconDetails } from '../utils/formatters';
 
-// Modals
 import FilePreviewModal from '../components/modals/FilePreviewModal';
 import ShareModal from '../components/modals/ShareModal';
 import FileVersionModal from '../components/modals/FileVersionModal';
@@ -39,7 +34,6 @@ export const RecentPage = () => {
   const [error, setError] = useState('');
   const toast = useToast();
 
-  // Modal dialog states
   const [previewFile, setPreviewFile] = useState(null);
   const [shareTarget, setShareTarget] = useState(null);
   const [versionTargetFile, setVersionTargetFile] = useState(null);
@@ -51,11 +45,11 @@ export const RecentPage = () => {
     setIsLoading(true);
     setError('');
     try {
-      // Fetch files ordered by recently updated
+
       const rootData = await fileService.searchFiles('', {
         limit: 100,
       });
-      // Sort by updated_at descending
+
       const sorted = (rootData || []).sort(
         (a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at)
       );
@@ -114,7 +108,6 @@ export const RecentPage = () => {
     }
   };
 
-  // Group files into chronological buckets
   const groupedFiles = useMemo(() => {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -156,7 +149,7 @@ export const RecentPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2.5">
@@ -221,7 +214,7 @@ export const RecentPage = () => {
                       className="group relative flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-4 shadow-soft hover:shadow-md hover:border-drive-300 transition-all cursor-pointer"
                     >
                       <div>
-                        {/* Card Top */}
+
                         <div className="flex items-start justify-between gap-2 mb-3">
                           <div
                             className={`flex h-10 w-10 items-center justify-center rounded-2xl ${bg} ${color} shadow-xs`}
@@ -263,7 +256,6 @@ export const RecentPage = () => {
                           </div>
                         </div>
 
-                        {/* Title & metadata */}
                         <h4
                           className="truncate text-sm font-semibold text-slate-800 group-hover:text-drive-700 transition-colors"
                           title={file.name}
@@ -275,7 +267,6 @@ export const RecentPage = () => {
                         </p>
                       </div>
 
-                      {/* Card Bottom / Tags Preview */}
                       <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-400">
                         <span className="truncate max-w-[120px]">
                           v{file.current_version || 1}
@@ -320,7 +311,6 @@ export const RecentPage = () => {
         </div>
       )}
 
-      {/* Modals */}
       {previewFile && (
         <FilePreviewModal
           file={previewFile}

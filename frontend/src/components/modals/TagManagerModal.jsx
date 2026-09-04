@@ -1,20 +1,16 @@
-/**
- * Custom color tag manager modal for labeling and grouping items.
- */
-
 import React, { useState, useEffect } from 'react';
 import { X, Tag as TagIcon, Plus, Check, Trash2, Palette } from 'lucide-react';
 import tagService from '../../services/tagService';
 
 const PRESET_COLORS = [
-  '#3B82F6', // Blue
-  '#10B981', // Green
-  '#F59E0B', // Amber
-  '#EF4444', // Red
-  '#8B5CF6', // Purple
-  '#EC4899', // Pink
-  '#06B6D4', // Cyan
-  '#64748B', // Slate
+  '#3B82F6',
+  '#10B981',
+  '#F59E0B',
+  '#EF4444',
+  '#8B5CF6',
+  '#EC4899',
+  '#06B6D4',
+  '#64748B',
 ];
 
 export const TagManagerModal = ({ isOpen, onClose, item, isFolder = false, onTagsUpdated }) => {
@@ -63,7 +59,6 @@ export const TagManagerModal = ({ isOpen, onClose, item, isFolder = false, onTag
         color: selectedColor,
       });
 
-      // Automatically attach created tag to the current item
       await tagService.attachTag({
         tag_id: created.id,
         ...(isFolder ? { folder_id: item.id } : { file_id: item.id }),
@@ -106,7 +101,7 @@ export const TagManagerModal = ({ isOpen, onClose, item, isFolder = false, onTag
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-150">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-modal transition-all animate-in zoom-in-95 duration-150">
-        {/* Header */}
+
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-drive-50 text-drive-600">
@@ -131,7 +126,6 @@ export const TagManagerModal = ({ isOpen, onClose, item, isFolder = false, onTag
           </div>
         )}
 
-        {/* Existing Tags Checklist */}
         <div className="mt-4 space-y-2">
           <h4 className="text-xs font-semibold text-slate-700">Attach existing labels</h4>
           {isLoading ? (
@@ -165,7 +159,6 @@ export const TagManagerModal = ({ isOpen, onClose, item, isFolder = false, onTag
           )}
         </div>
 
-        {/* Create Tag Form */}
         <form onSubmit={handleCreateTag} className="mt-5 border-t border-slate-100 pt-4 space-y-3">
           <h4 className="text-xs font-semibold text-slate-700">Create new tag</h4>
           <div className="flex gap-2">
@@ -186,7 +179,6 @@ export const TagManagerModal = ({ isOpen, onClose, item, isFolder = false, onTag
             </button>
           </div>
 
-          {/* Color swatches */}
           <div className="flex items-center gap-2 pt-1">
             {PRESET_COLORS.map((hex) => (
               <button
@@ -204,7 +196,6 @@ export const TagManagerModal = ({ isOpen, onClose, item, isFolder = false, onTag
           </div>
         </form>
 
-        {/* Footer */}
         <div className="mt-6 flex justify-end border-t border-slate-100 pt-4">
           <button
             onClick={onClose}

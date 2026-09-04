@@ -1,7 +1,3 @@
-/**
- * Universal file preview modal supporting images, video, audio, PDF, and code/text inspection.
- */
-
 import React, { useState, useEffect } from 'react';
 import {
   X,
@@ -82,7 +78,7 @@ export const FilePreviewModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-2 md:p-6 animate-in fade-in duration-200">
       <div className="relative flex h-full max-h-[92vh] w-full max-w-6xl flex-col rounded-3xl bg-slate-900 text-white shadow-2xl overflow-hidden border border-slate-800">
-        {/* Top Navigation Bar */}
+
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800 bg-slate-900/90 px-4 md:px-6 backdrop-blur">
           <div className="flex items-center gap-3 overflow-hidden">
             <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${bg} ${color}`}>
@@ -100,7 +96,6 @@ export const FilePreviewModal = ({
             </div>
           </div>
 
-          {/* Action Toolbar */}
           <div className="flex items-center gap-2">
             <button
               onClick={handleStarClick}
@@ -152,11 +147,10 @@ export const FilePreviewModal = ({
           </div>
         </div>
 
-        {/* Content Viewer Body */}
         <div className="flex flex-1 overflow-hidden">
-          {/* Main Display Area */}
+
           <div className="flex flex-1 items-center justify-center bg-slate-950/60 p-4 overflow-auto">
-            {/* 1. Image Preview */}
+
             {category === 'image' && (
               <img
                 src={previewStreamUrl}
@@ -165,7 +159,6 @@ export const FilePreviewModal = ({
               />
             )}
 
-            {/* 2. Video Preview */}
             {category === 'video' && (
               <video
                 controls
@@ -177,7 +170,6 @@ export const FilePreviewModal = ({
               </video>
             )}
 
-            {/* 3. Audio Preview */}
             {category === 'audio' && (
               <div className="flex flex-col items-center justify-center gap-6 p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl max-w-md w-full">
                 <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-amber-500/20 text-amber-400">
@@ -193,7 +185,6 @@ export const FilePreviewModal = ({
               </div>
             )}
 
-            {/* 4. PDF Preview */}
             {category === 'pdf' && (
               <iframe
                 src={previewStreamUrl}
@@ -202,7 +193,6 @@ export const FilePreviewModal = ({
               />
             )}
 
-            {/* 5. Code & Text Inspection */}
             {(category === 'code' || category === 'document') && (
               <div className="h-full w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 flex flex-col font-mono text-xs">
                 <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950 px-4 py-2 text-slate-400">
@@ -239,7 +229,6 @@ export const FilePreviewModal = ({
               </div>
             )}
 
-            {/* 6. Fallback Generic File Display */}
             {category !== 'image' &&
               category !== 'video' &&
               category !== 'audio' &&
@@ -265,7 +254,6 @@ export const FilePreviewModal = ({
               )}
           </div>
 
-          {/* Right Info Sidebar */}
           <div className="hidden lg:flex w-72 flex-col border-l border-slate-800 bg-slate-900/60 p-5 text-xs space-y-5">
             <div className="flex items-center gap-2 font-semibold text-slate-200">
               <Info className="h-4 w-4 text-drive-400" />

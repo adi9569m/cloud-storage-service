@@ -1,7 +1,3 @@
-/**
- * Registration page with full name, email, password strength, and validation.
- */
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -58,7 +54,7 @@ export const RegisterPage = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-light px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-soft sm:p-10">
-        {/* Brand Header */}
+
         <div className="text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-drive-600 text-white shadow-md">
             <Cloud className="h-8 w-8" />
@@ -71,7 +67,6 @@ export const RegisterPage = () => {
           </p>
         </div>
 
-        {/* Error Alert */}
         {error && (
           <div className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm text-red-700">
             <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
@@ -79,7 +74,6 @@ export const RegisterPage = () => {
           </div>
         )}
 
-        {/* Registration Form */}
         <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">

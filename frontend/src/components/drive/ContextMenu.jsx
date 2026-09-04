@@ -1,7 +1,3 @@
-/**
- * Dropdown context menu for file and folder operations.
- */
-
 import React, { useState, useRef, useEffect } from 'react';
 import {
   MoreVertical,
@@ -16,6 +12,7 @@ import {
   History,
   MessageSquare,
   Trash2,
+  Archive,
 } from 'lucide-react';
 
 export const ContextMenu = ({
@@ -23,6 +20,7 @@ export const ContextMenu = ({
   isFolder = false,
   onPreview,
   onDownload,
+  onExtract,
   onShare,
   onToggleStar,
   onRename,
@@ -71,7 +69,7 @@ export const ContextMenu = ({
           onClick={(e) => e.stopPropagation()}
           className="absolute right-0 top-8 z-40 w-48 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-modal animate-in fade-in zoom-in-95 duration-100 text-xs"
         >
-          {/* Preview (files only) */}
+
           {!isFolder && onPreview && (
             <button
               onClick={() => handleAction(onPreview)}
@@ -82,7 +80,6 @@ export const ContextMenu = ({
             </button>
           )}
 
-          {/* Download */}
           {onDownload && (
             <button
               onClick={() => handleAction(onDownload)}
@@ -93,7 +90,16 @@ export const ContextMenu = ({
             </button>
           )}
 
-          {/* Share */}
+          {!isFolder && onExtract && (item.name?.toLowerCase().endsWith('.zip') || item.mime_type?.includes('zip')) && (
+            <button
+              onClick={() => handleAction(onExtract)}
+              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-amber-700 hover:bg-amber-50 transition-colors"
+            >
+              <Archive className="h-4 w-4 text-amber-600" />
+              <span>Extract Archive</span>
+            </button>
+          )}
+
           {onShare && (
             <button
               onClick={() => handleAction(onShare)}
@@ -104,7 +110,6 @@ export const ContextMenu = ({
             </button>
           )}
 
-          {/* Star Toggle */}
           {onToggleStar && (
             <button
               onClick={() => handleAction(onToggleStar)}
@@ -119,7 +124,6 @@ export const ContextMenu = ({
             </button>
           )}
 
-          {/* Tags */}
           {onTags && (
             <button
               onClick={() => handleAction(onTags)}
@@ -132,7 +136,6 @@ export const ContextMenu = ({
 
           <div className="my-1 border-t border-slate-100" />
 
-          {/* Rename */}
           {onRename && (
             <button
               onClick={() => handleAction(onRename)}
@@ -143,7 +146,6 @@ export const ContextMenu = ({
             </button>
           )}
 
-          {/* Move */}
           {onMove && (
             <button
               onClick={() => handleAction(onMove)}
@@ -154,7 +156,6 @@ export const ContextMenu = ({
             </button>
           )}
 
-          {/* Copy (files only) */}
           {!isFolder && onCopy && (
             <button
               onClick={() => handleAction(onCopy)}
@@ -165,7 +166,6 @@ export const ContextMenu = ({
             </button>
           )}
 
-          {/* Version History (files only) */}
           {!isFolder && onVersions && (
             <button
               onClick={() => handleAction(onVersions)}
@@ -176,7 +176,6 @@ export const ContextMenu = ({
             </button>
           )}
 
-          {/* Comments (files only) */}
           {!isFolder && onComments && (
             <button
               onClick={() => handleAction(onComments)}
@@ -189,7 +188,6 @@ export const ContextMenu = ({
 
           <div className="my-1 border-t border-slate-100" />
 
-          {/* Delete */}
           {onDelete && (
             <button
               onClick={() => handleAction(onDelete)}

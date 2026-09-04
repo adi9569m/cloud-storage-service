@@ -1,10 +1,7 @@
-"""Pydantic schemas for audit trail activity logs."""
-
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, ConfigDict, Field
-
 
 class ActivityResponse(BaseModel):
     """Schema representing an individual activity log record."""
@@ -20,7 +17,6 @@ class ActivityResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-
 
 class ActivityListResponse(BaseModel):
     """Paginated list of activity log entries."""

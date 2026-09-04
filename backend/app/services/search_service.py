@@ -1,5 +1,3 @@
-"""Search service providing unified multi-facet querying across files and folders."""
-
 from datetime import datetime
 import math
 import os
@@ -21,11 +19,9 @@ from app.schemas.search import (
 )
 from app.services.folder_service import FolderService
 
-
 class SearchService:
     """Service handling multi-faceted file and folder search queries."""
 
-    # Extension groupings
     IMAGE_EXTS = {"jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "tiff", "ico", "heic", "avif"}
     VIDEO_EXTS = {"mp4", "mkv", "mov", "avi", "wmv", "flv", "webm", "m4v", "3gp"}
     AUDIO_EXTS = {"mp3", "wav", "ogg", "m4a", "flac", "aac", "wma", "aiff"}
@@ -136,7 +132,6 @@ class SearchService:
         page = max(1, page)
         page_size = max(1, min(100, page_size))
 
-        # Starred UUID lookups
         starred_file_ids: Set[uuid.UUID] = set(
             db.scalars(
                 select(Star.file_id).where(Star.user_id == user_id, Star.file_id.is_not(None))
@@ -148,24 +143,20 @@ class SearchService:
             ).all()
         )
 
-        # Scoped folder hierarchy
         allowed_folder_ids: Optional[Set[uuid.UUID]] = None
         if folder_id is not None:
-            # Include target folder and all nested descendants
+
             allowed_folder_ids = {folder_id}
             allowed_folder_ids.update(
                 FolderService._get_all_descendant_folder_ids(db, folder_id, user_id)
             )
 
-        # Path mapping for breadcrumb display
         folder_paths = cls._build_folder_path_map(db, user_id)
 
-        # File-specific filters check
         has_file_specific_filter = bool(
             mime_type or extension or (min_size is not None) or (max_size is not None)
         )
 
-        # 1. Fetch Candidates (Non-deleted resources owned by user)
         folder_stmt = select(Folder).where(
             Folder.owner_id == user_id,
             Folder.is_deleted.is_(False),
@@ -218,11 +209,9 @@ class SearchService:
         candidate_folders: List[Folder] = [] if has_file_specific_filter else db.scalars(folder_stmt).all()
         candidate_files: List[File] = db.scalars(file_stmt).all()
 
-        # Build SearchResultItems and Facet Counts
         all_items: List[SearchResultItem] = []
         facets = SearchFacets()
 
-        # Folders facet & items
         for folder in candidate_folders:
             is_star = folder.id in starred_folder_ids
             if is_starred is not None and is_star != is_starred:
@@ -248,7 +237,6 @@ class SearchService:
             if type_filter in (SearchTypeFilter.ALL, SearchTypeFilter.FOLDER):
                 all_items.append(item)
 
-        # Files facet & items
         for file in candidate_files:
             is_star = file.id in starred_file_ids
             if is_starred is not None and is_star != is_starred:
@@ -276,7 +264,6 @@ class SearchService:
             else:
                 facets.other += 1
 
-            # Match type filter
             include = False
             if type_filter == SearchTypeFilter.ALL or type_filter == SearchTypeFilter.FILE:
                 include = True
@@ -317,7 +304,6 @@ class SearchService:
                 )
                 all_items.append(item)
 
-        # Sorting
         reverse = (sort_order == SearchSortOrder.DESC)
         if sort_by == SearchSortBy.NAME:
             all_items.sort(key=lambda x: x.name.lower(), reverse=reverse)
@@ -325,10 +311,9 @@ class SearchService:
             all_items.sort(key=lambda x: x.created_at, reverse=reverse)
         elif sort_by == SearchSortBy.SIZE_BYTES:
             all_items.sort(key=lambda x: x.size_bytes or 0, reverse=reverse)
-        else:  # UPDATED_AT
+        else:
             all_items.sort(key=lambda x: x.updated_at, reverse=reverse)
 
-        # Pagination
         total = len(all_items)
         total_pages = math.ceil(total / page_size) if total > 0 else 1
         start_idx = (page - 1) * page_size

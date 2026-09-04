@@ -1,7 +1,3 @@
-/**
- * Version history inspection and new version upload modal.
- */
-
 import React, { useState, useEffect } from 'react';
 import {
   X,
@@ -72,7 +68,7 @@ export const FileVersionModal = ({ isOpen, onClose, file, onVersionUploaded }) =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-150">
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-modal transition-all animate-in zoom-in-95 duration-150">
-        {/* Header */}
+
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-drive-50 text-drive-600">
@@ -91,7 +87,6 @@ export const FileVersionModal = ({ isOpen, onClose, file, onVersionUploaded }) =
           </button>
         </div>
 
-        {/* Upload New Version Action */}
         <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3.5">
           <div className="flex items-center justify-between">
             <div>
@@ -117,7 +112,6 @@ export const FileVersionModal = ({ isOpen, onClose, file, onVersionUploaded }) =
           </div>
         )}
 
-        {/* Version Timeline */}
         <div className="mt-4 space-y-3">
           <h4 className="text-xs font-semibold text-slate-700">All Snapshots ({versions.length})</h4>
 
@@ -168,7 +162,6 @@ export const FileVersionModal = ({ isOpen, onClose, file, onVersionUploaded }) =
           )}
         </div>
 
-        {/* Footer */}
         <div className="mt-6 flex justify-end border-t border-slate-100 pt-4">
           <button
             onClick={onClose}

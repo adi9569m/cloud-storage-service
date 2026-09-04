@@ -1,5 +1,3 @@
-"""File SQLAlchemy ORM model representing stored file objects and metadata."""
-
 import uuid
 from typing import List, TYPE_CHECKING
 from sqlalchemy import BigInteger, ForeignKey, Index, String, Uuid
@@ -15,7 +13,6 @@ if TYPE_CHECKING:
     from app.models.link_share import LinkShare
     from app.models.star import Star
     from app.models.comment import Comment
-
 
 class File(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     """File entity holding metadata, storage references, and version history."""
@@ -67,7 +64,6 @@ class File(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
         Index("idx_files_is_deleted", "is_deleted", "deleted_at"),
     )
 
-    # Relationships
     owner: Mapped["User"] = relationship(
         "User",
         back_populates="files",

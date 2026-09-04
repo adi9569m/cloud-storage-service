@@ -1,15 +1,11 @@
-"""Pydantic schemas for system maintenance, automated cleanup, and telemetry."""
-
 from datetime import datetime
 from pydantic import BaseModel, Field
-
 
 class MaintenanceCleanupRequest(BaseModel):
     """Parameters for triggered trash cleanup."""
 
     older_than_days: int = Field(30, ge=1, description="Threshold age in days for trash purge")
     dry_run: bool = Field(False, description="If true, compute statistics without actually deleting items")
-
 
 class MaintenanceCleanupResult(BaseModel):
     """Summary of purged trash items and reclaimed storage bytes."""
@@ -20,13 +16,11 @@ class MaintenanceCleanupResult(BaseModel):
     dry_run: bool = False
     message: str = "Maintenance trash cleanup completed"
 
-
 class ExpiredLinksCleanupResult(BaseModel):
     """Summary of deactivated expired public share links."""
 
     deactivated_links_count: int = 0
     message: str = "Expired link cleanup completed"
-
 
 class StorageSyncResult(BaseModel):
     """Summary of user storage quota reconciliation."""
@@ -34,7 +28,6 @@ class StorageSyncResult(BaseModel):
     users_synced: int = 0
     total_storage_bytes: int = 0
     message: str = "Storage recalculation completed"
-
 
 class SystemStatusResponse(BaseModel):
     """System health diagnostics, environment configuration, and database metrics."""

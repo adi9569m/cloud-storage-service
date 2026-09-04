@@ -1,7 +1,3 @@
-/**
- * Layout grid/list view switcher and sorting dropdown.
- */
-
 import React from 'react';
 import { LayoutGrid, List, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
@@ -25,7 +21,7 @@ export const ViewSwitcher = ({
 
   return (
     <div className="flex items-center gap-2 text-xs">
-      {/* Sort Select */}
+
       <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 shadow-sm">
         <span className="text-slate-400 font-medium hidden sm:inline">Sort:</span>
         <select
@@ -48,7 +44,6 @@ export const ViewSwitcher = ({
         </button>
       </div>
 
-      {/* Grid vs List View Buttons */}
       <div className="flex items-center rounded-xl border border-slate-200 bg-white p-0.5 shadow-sm">
         <button
           onClick={() => onViewModeChange('grid')}

@@ -1,11 +1,8 @@
-"""Pydantic schemas for folder entities, breadcrumbs, hierarchy trees, and responses."""
-
 import uuid
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from app.schemas.file import FileResponse
-
 
 class BreadcrumbItem(BaseModel):
     """Breadcrumb trail entry representing hierarchical folder navigation."""
@@ -14,7 +11,6 @@ class BreadcrumbItem(BaseModel):
     name: str = Field(..., description="Folder display name or 'My Drive' for Root.")
 
     model_config = ConfigDict(from_attributes=True)
-
 
 class FolderBase(BaseModel):
     """Base folder schema with shared attributes."""
@@ -33,7 +29,6 @@ class FolderBase(BaseModel):
             raise ValueError("Folder name cannot contain path separators ('/' or '\\').")
         return stripped
 
-
 class FolderCreate(FolderBase):
     """Schema for creating a new folder."""
 
@@ -41,7 +36,6 @@ class FolderCreate(FolderBase):
         None,
         description="Parent folder UUID. Omit or pass null for root level.",
     )
-
 
 class FolderUpdate(BaseModel):
     """Schema for updating folder metadata (rename or color change)."""
@@ -62,7 +56,6 @@ class FolderUpdate(BaseModel):
             raise ValueError("Folder name cannot contain path separators ('/' or '\\').")
         return stripped
 
-
 class FolderMove(BaseModel):
     """Schema for moving a folder to a target destination folder."""
 
@@ -70,7 +63,6 @@ class FolderMove(BaseModel):
         None,
         description="Target destination folder UUID. Pass null to move to Root.",
     )
-
 
 class FolderResponse(BaseModel):
     """Folder metadata representation."""
@@ -88,14 +80,12 @@ class FolderResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class FolderDetailResponse(FolderResponse):
     """Detailed folder view including breadcrumbs path and aggregate counts."""
 
     breadcrumbs: List[BreadcrumbItem] = Field(default_factory=list)
     subfolders_count: int = 0
     files_count: int = 0
-
 
 class FolderTreeItem(BaseModel):
     """Recursive tree item for folder navigation sidebar and picker."""
@@ -107,7 +97,6 @@ class FolderTreeItem(BaseModel):
     children: List["FolderTreeItem"] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
-
 
 class FolderContentsResponse(BaseModel):
     """Listing response containing breadcrumbs, child folders, and files."""

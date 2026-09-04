@@ -1,8 +1,3 @@
-/**
- * Collapsible Google Drive-style navigation sidebar with "+ New" action menu
- * and dynamic storage meter widget.
- */
-
 import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -61,12 +56,12 @@ export const Sidebar = ({ isOpen, onClose, onNewFolder, onUploadFile }) => {
   };
 
   const usedBytes = user?.storage_used_bytes || 0;
-  const quotaBytes = 5 * 1024 * 1024 * 1024; // 5 GB
+  const quotaBytes = 5 * 1024 * 1024 * 1024;
   const usedPercentage = Math.min(100, Math.round((usedBytes / quotaBytes) * 100));
 
   return (
     <>
-      {/* Mobile Backdrop */}
+
       {isOpen && (
         <div
           onClick={onClose}
@@ -74,14 +69,13 @@ export const Sidebar = ({ isOpen, onClose, onNewFolder, onUploadFile }) => {
         />
       )}
 
-      {/* Sidebar Container */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col justify-between border-r border-surface-border bg-white pt-16 transition-transform duration-300 md:static md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col gap-6 p-4">
-          {/* "+ New" Action Dropdown Button */}
+
           <div className="relative" ref={newMenuRef}>
             <button
               onClick={() => setIsNewMenuOpen(!isNewMenuOpen)}
@@ -119,7 +113,6 @@ export const Sidebar = ({ isOpen, onClose, onNewFolder, onUploadFile }) => {
             )}
           </div>
 
-          {/* Navigation Items */}
           <nav className="flex flex-col gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -144,7 +137,6 @@ export const Sidebar = ({ isOpen, onClose, onNewFolder, onUploadFile }) => {
           </nav>
         </div>
 
-        {/* Bottom Storage Meter Widget */}
         <div className="p-4 border-t border-slate-100">
           <div className="rounded-2xl bg-slate-50 p-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 mb-2">

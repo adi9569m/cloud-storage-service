@@ -1,5 +1,3 @@
-"""API router for storage metrics, usage breakdowns, and quota analytics."""
-
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -15,7 +13,6 @@ from app.services.storage_analytics_service import StorageAnalyticsService
 
 router = APIRouter(prefix="/storage", tags=["Storage Analytics & Quotas"])
 
-
 @router.get("/summary", response_model=StorageUsageSummaryResponse)
 def get_storage_summary(
     db: Session = Depends(get_db),
@@ -23,7 +20,6 @@ def get_storage_summary(
 ) -> StorageUsageSummaryResponse:
     """Retrieve full storage overview including quota, usage percent, category breakdown, and top largest files."""
     return StorageAnalyticsService.get_storage_summary(db=db, user_id=current_user.id)
-
 
 @router.get("/breakdown", response_model=List[StorageCategoryBreakdown])
 def get_storage_breakdown(
@@ -33,7 +29,6 @@ def get_storage_breakdown(
     """Retrieve detailed storage consumption breakdown across media/file categories."""
     summary = StorageAnalyticsService.get_storage_summary(db=db, user_id=current_user.id)
     return summary.breakdown
-
 
 @router.post("/recalculate")
 def recalculate_storage(

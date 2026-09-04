@@ -1,8 +1,3 @@
-"""SQLAlchemy ORM models package initialization.
-
-Re-exports all database models so they are registered with SQLAlchemy Base metadata.
-"""
-
 from app.models.base import UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin
 from app.models.user import User
 from app.models.folder import Folder

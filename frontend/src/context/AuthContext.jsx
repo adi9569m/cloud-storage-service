@@ -1,7 +1,3 @@
-/**
- * Global Authentication Context and Provider managing session state.
- */
-
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import authService from '../services/authService';
 
@@ -19,7 +15,6 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem('access_token'));
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize and verify user on startup
   const checkAuth = useCallback(async () => {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -49,7 +44,6 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [checkAuth]);
 
-  // Login handler
   const login = async (email, password) => {
     setIsLoading(true);
     try {
@@ -60,7 +54,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('refresh_token', refresh_token);
       setToken(access_token);
 
-      // Fetch user profile
       const userData = await authService.getMe();
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -70,19 +63,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Register handler
   const register = async (email, password, fullName = '') => {
     setIsLoading(true);
     try {
       const userData = await authService.register(email, password, fullName);
-      // Automatically log in after registration
+
       return await login(email, password);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Logout handler
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -91,7 +82,6 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
   };
 
-  // Update cached user
   const updateUser = (updatedData) => {
     setUser((prev) => {
       const next = { ...prev, ...updatedData };

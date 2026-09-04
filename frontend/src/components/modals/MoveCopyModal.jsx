@@ -1,7 +1,3 @@
-/**
- * Modal to move or copy files/folders to a destination folder chosen from the directory tree.
- */
-
 import React, { useState, useEffect } from 'react';
 import { X, Folder, FolderTree, ChevronRight, Check, HardDrive } from 'lucide-react';
 import folderService from '../../services/folderService';
@@ -12,11 +8,11 @@ export const MoveCopyModal = ({
   onClose,
   item,
   isFolder = false,
-  mode = 'move', // 'move' | 'copy'
+  mode = 'move',
   onSuccess,
 }) => {
   const [folderTree, setFolderTree] = useState([]);
-  const [selectedFolderId, setSelectedFolderId] = useState(null); // null means Root
+  const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -55,7 +51,7 @@ export const MoveCopyModal = ({
           await fileService.move(item.id, selectedFolderId);
         }
       } else {
-        // Copy mode (files only supported by copy endpoint)
+
         if (!isFolder) {
           await fileService.copy(item.id, selectedFolderId, `Copy of ${item.name}`);
         }
@@ -71,7 +67,7 @@ export const MoveCopyModal = ({
 
   const renderTreeNodes = (nodes, depth = 0) => {
     return nodes.map((node) => {
-      // Don't allow moving folder into itself
+
       if (isFolder && node.id === item.id) return null;
 
       const isSelected = selectedFolderId === node.id;
@@ -106,7 +102,7 @@ export const MoveCopyModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-150">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-modal transition-all animate-in zoom-in-95 duration-150 flex flex-col max-h-[85vh]">
-        {/* Header */}
+
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-drive-50 text-drive-600">
@@ -133,9 +129,8 @@ export const MoveCopyModal = ({
           </div>
         )}
 
-        {/* Folder Directory Browser */}
         <div className="mt-4 flex-1 overflow-y-auto space-y-1 rounded-xl border border-slate-200 bg-slate-50/50 p-2">
-          {/* Root Directory Button */}
+
           <button
             type="button"
             onClick={() => setSelectedFolderId(null)}
@@ -152,7 +147,6 @@ export const MoveCopyModal = ({
             {selectedFolderId === null && <Check className="h-4 w-4 text-drive-600" />}
           </button>
 
-          {/* Hierarchical Subfolders */}
           {isLoading ? (
             <p className="text-xs text-slate-400 py-4 text-center">Loading directories...</p>
           ) : (
@@ -160,7 +154,6 @@ export const MoveCopyModal = ({
           )}
         </div>
 
-        {/* Footer */}
         <div className="mt-5 flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
           <button
             type="button"

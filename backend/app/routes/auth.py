@@ -1,5 +1,3 @@
-"""Authentication and user profile API routes."""
-
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -19,7 +17,6 @@ from app.services.user_service import UserService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-
 @router.post(
     "/register",
     response_model=UserResponse,
@@ -33,7 +30,6 @@ def register(
 ) -> User:
     """Register a new user and return the newly created user profile."""
     return UserService.create_user(db=db, user_in=user_in)
-
 
 @router.post(
     "/login",
@@ -54,7 +50,6 @@ def login(
     )
     return AuthService.generate_tokens(user)
 
-
 @router.post(
     "/refresh",
     response_model=Token,
@@ -69,7 +64,6 @@ def refresh_token(
     """Validate refresh token and issue new token pair."""
     return AuthService.refresh_tokens(db=db, refresh_token_str=payload.refresh_token)
 
-
 @router.get(
     "/me",
     response_model=UserResponse,
@@ -82,7 +76,6 @@ def get_current_user_profile(
 ) -> User:
     """Return the profile of the current active user."""
     return current_user
-
 
 @router.put(
     "/me",
@@ -102,7 +95,6 @@ def update_current_user_profile(
         user=current_user,
         update_in=update_in,
     )
-
 
 @router.post(
     "/change-password",

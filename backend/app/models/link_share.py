@@ -1,5 +1,3 @@
-"""LinkShare SQLAlchemy ORM model representing public shareable links."""
-
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -13,7 +11,6 @@ if TYPE_CHECKING:
     from app.models.user import User
     from app.models.file import File
     from app.models.folder import Folder
-
 
 class LinkShare(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     """Public token-based share link with optional expiry and password protection."""
@@ -81,7 +78,6 @@ class LinkShare(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         doc="Total number of visits / accesses via this link.",
     )
 
-    # Table constraints: exactly one target must be specified
     __table_args__ = (
         CheckConstraint(
             "(file_id IS NOT NULL AND folder_id IS NULL) OR (file_id IS NULL AND folder_id IS NOT NULL)",
@@ -92,7 +88,6 @@ class LinkShare(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         Index("idx_link_shares_folder", "folder_id"),
     )
 
-    # Relationships
     created_by: Mapped["User"] = relationship(
         "User",
         back_populates="link_shares",

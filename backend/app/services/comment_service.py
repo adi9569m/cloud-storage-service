@@ -1,5 +1,3 @@
-"""Comment service managing file collaboration, comment threads, and permissions."""
-
 from typing import List, Optional
 import uuid
 from fastapi import HTTPException, status
@@ -18,7 +16,6 @@ from app.schemas.comment import (
     CommentUpdate,
 )
 from app.services.activity_service import ActivityService
-
 
 class CommentService:
     """Service providing collaboration comment operations on files."""
@@ -39,7 +36,6 @@ class CommentService:
         if file.owner_id == user_id:
             return file
 
-        # Check share
         share = db.scalars(
             select(Share).where(
                 Share.grantee_id == user_id,

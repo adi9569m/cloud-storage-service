@@ -1,7 +1,3 @@
-/**
- * Collaboration and public share link generator modal.
- */
-
 import React, { useState, useEffect } from 'react';
 import {
   X,
@@ -20,14 +16,13 @@ import shareService from '../../services/shareService';
 import linkShareService from '../../services/linkShareService';
 
 export const ShareModal = ({ isOpen, onClose, item, isFolder = false }) => {
-  const [activeTab, setActiveTab] = useState('users'); // 'users' | 'link'
+  const [activeTab, setActiveTab] = useState('users');
   const [granteeEmail, setGranteeEmail] = useState('');
   const [role, setRole] = useState('VIEWER');
   const [collaborators, setCollaborators] = useState([]);
   const [publicLinks, setPublicLinks] = useState([]);
   const [copiedToken, setCopiedToken] = useState(null);
 
-  // New public link states
   const [linkPassword, setLinkPassword] = useState('');
   const [hasPassword, setHasPassword] = useState(false);
   const [linkExpiryDays, setLinkExpiryDays] = useState('30');
@@ -150,7 +145,7 @@ export const ShareModal = ({ isOpen, onClose, item, isFolder = false }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-150">
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-modal transition-all animate-in zoom-in-95 duration-150">
-        {/* Header */}
+
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-drive-50 text-drive-600">
@@ -171,7 +166,6 @@ export const ShareModal = ({ isOpen, onClose, item, isFolder = false }) => {
           </button>
         </div>
 
-        {/* Tab Switcher */}
         <div className="mt-4 flex border-b border-slate-100">
           <button
             onClick={() => setActiveTab('users')}
@@ -197,7 +191,6 @@ export const ShareModal = ({ isOpen, onClose, item, isFolder = false }) => {
           </button>
         </div>
 
-        {/* Status Alerts */}
         {error && (
           <div className="mt-3 rounded-xl bg-red-50 p-3 text-xs text-red-600 border border-red-200">
             {error}
@@ -209,7 +202,6 @@ export const ShareModal = ({ isOpen, onClose, item, isFolder = false }) => {
           </div>
         )}
 
-        {/* Tab 1: Direct Collaborators */}
         {activeTab === 'users' && (
           <div className="mt-4 space-y-4">
             <form onSubmit={handleAddCollaborator} className="flex gap-2">
@@ -237,7 +229,6 @@ export const ShareModal = ({ isOpen, onClose, item, isFolder = false }) => {
               </button>
             </form>
 
-            {/* List of existing direct shares */}
             <div className="space-y-2">
               <h4 className="text-xs font-semibold text-slate-700">People with access</h4>
               {collaborators.length === 0 ? (
@@ -274,10 +265,9 @@ export const ShareModal = ({ isOpen, onClose, item, isFolder = false }) => {
           </div>
         )}
 
-        {/* Tab 2: Public Share Links */}
         {activeTab === 'link' && (
           <div className="mt-4 space-y-4">
-            {/* Create new public link controls */}
+
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
@@ -327,7 +317,6 @@ export const ShareModal = ({ isOpen, onClose, item, isFolder = false }) => {
               </div>
             </div>
 
-            {/* List of active public links */}
             <div className="space-y-2">
               <h4 className="text-xs font-semibold text-slate-700">Active Public Links</h4>
               {publicLinks.length === 0 ? (
@@ -386,7 +375,6 @@ export const ShareModal = ({ isOpen, onClose, item, isFolder = false }) => {
           </div>
         )}
 
-        {/* Footer */}
         <div className="mt-6 flex justify-end border-t border-slate-100 pt-4">
           <button
             onClick={onClose}

@@ -1,5 +1,3 @@
-"""Integration tests for multi-faceted search, advanced filtering, and facets."""
-
 import io
 import uuid
 import pytest
@@ -25,7 +23,6 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
 @pytest.fixture(scope="function")
 def db_session():
     """Create an isolated database session."""
@@ -36,7 +33,6 @@ def db_session():
     finally:
         session.close()
         Base.metadata.drop_all(bind=engine)
-
 
 @pytest.fixture(scope="function")
 def client(db_session):
@@ -51,7 +47,6 @@ def client(db_session):
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
-
 
 @pytest.fixture(scope="function")
 def test_user(db_session):
@@ -68,18 +63,16 @@ def test_user(db_session):
     db_session.refresh(user)
     return user
 
-
 @pytest.fixture(scope="function")
 def auth_headers(test_user):
     """Generate bearer token headers."""
     token = create_access_token(subject=str(test_user.id))
     return {"Authorization": f"Bearer {token}"}
 
-
 @pytest.fixture(scope="function")
 def seed_data(db_session, test_user):
     """Seed folders and files across various MIME types and nesting levels."""
-    # Folders
+
     f_docs = Folder(name="Documents", owner_id=test_user.id, parent_id=None)
     f_media = Folder(name="Media", owner_id=test_user.id, parent_id=None)
     db_session.add_all([f_docs, f_media])
@@ -89,7 +82,6 @@ def seed_data(db_session, test_user):
     db_session.add(f_subdocs)
     db_session.flush()
 
-    # Files
     file_pdf = File(
         name="annual_report.pdf",
         folder_id=f_docs.id,
@@ -125,7 +117,6 @@ def seed_data(db_session, test_user):
     db_session.add_all([file_pdf, file_img, file_code, file_zip])
     db_session.flush()
 
-    # Star file_pdf and f_media
     star1 = Star(user_id=test_user.id, file_id=file_pdf.id)
     star2 = Star(user_id=test_user.id, folder_id=f_media.id)
     db_session.add_all([star1, star2])
@@ -141,13 +132,12 @@ def seed_data(db_session, test_user):
         "file_zip": file_zip,
     }
 
-
 def test_search_all_items(client, auth_headers, seed_data):
     """Test unrestricted search returning all folders and files with facets."""
     resp = client.get("/api/v1/search", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()
-    assert data["total"] == 7  # 3 folders + 4 files
+    assert data["total"] == 7
     assert data["facets"]["all"] == 7
     assert data["facets"]["folders"] == 3
     assert data["facets"]["files"] == 4
@@ -155,7 +145,6 @@ def test_search_all_items(client, auth_headers, seed_data):
     assert data["facets"]["images"] == 1
     assert data["facets"]["code"] == 1
     assert data["facets"]["archives"] == 1
-
 
 def test_search_by_query_string(client, auth_headers, seed_data):
     """Test searching by name keyword substring."""
@@ -167,30 +156,26 @@ def test_search_by_query_string(client, auth_headers, seed_data):
     assert data["items"][0]["resource_type"] == "file"
     assert data["items"][0]["path"] == "/Documents/annual_report.pdf"
 
-
 def test_search_filter_by_type_category(client, auth_headers, seed_data):
     """Test filtering by category type (image, code, folder)."""
-    # Filter by folder
+
     resp = client.get("/api/v1/search?type=folder", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()
     assert data["total"] == 3
     assert all(item["resource_type"] == "folder" for item in data["items"])
 
-    # Filter by image
     resp_img = client.get("/api/v1/search?type=image", headers=auth_headers)
     assert resp_img.status_code == 200
     data_img = resp_img.json()
     assert data_img["total"] == 1
     assert data_img["items"][0]["name"] == "vacation_photo.png"
 
-    # Filter by code
     resp_code = client.get("/api/v1/search?type=code", headers=auth_headers)
     assert resp_code.status_code == 200
     data_code = resp_code.json()
     assert data_code["total"] == 1
     assert data_code["items"][0]["name"] == "main_script.py"
-
 
 def test_search_filter_by_extension_and_mime(client, auth_headers, seed_data):
     """Test filtering by specific extension and mime type."""
@@ -204,18 +189,16 @@ def test_search_filter_by_extension_and_mime(client, auth_headers, seed_data):
     assert resp_mime.status_code == 200
     assert resp_mime.json()["total"] == 1
 
-
 def test_search_filter_by_size_range(client, auth_headers, seed_data):
     """Test filtering files by min_size and max_size."""
     resp = client.get("/api/v1/search?min_size=10000&max_size=30000", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()
-    # Should match vacation_photo.png (12000) and backup_archive.zip (25000)
+
     assert data["total"] == 2
     names = {item["name"] for item in data["items"]}
     assert "vacation_photo.png" in names
     assert "backup_archive.zip" in names
-
 
 def test_search_scoped_to_folder_subtree(client, auth_headers, seed_data):
     """Test scoping search to a parent folder including all nested subfolders."""
@@ -223,12 +206,11 @@ def test_search_scoped_to_folder_subtree(client, auth_headers, seed_data):
     resp = client.get(f"/api/v1/search?folder_id={f_docs_id}", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()
-    # Under Documents: Work folder, annual_report.pdf, and main_script.py (inside Work)
+
     names = {item["name"] for item in data["items"]}
     assert "annual_report.pdf" in names
     assert "main_script.py" in names
     assert "vacation_photo.png" not in names
-
 
 def test_search_starred_filter(client, auth_headers, seed_data):
     """Test filtering only starred items."""
@@ -240,7 +222,6 @@ def test_search_starred_filter(client, auth_headers, seed_data):
     assert "annual_report.pdf" in names
     assert "Media" in names
 
-
 def test_search_sorting_and_pagination(client, auth_headers, seed_data):
     """Test sorting by name ascending/descending and pagination."""
     resp = client.get("/api/v1/search?sort_by=name&sort_order=asc&page=1&page_size=2", headers=auth_headers)
@@ -249,6 +230,6 @@ def test_search_sorting_and_pagination(client, auth_headers, seed_data):
     assert data["page"] == 1
     assert data["page_size"] == 2
     assert len(data["items"]) == 2
-    assert data["total_pages"] == 4  # 7 items / 2 per page = 4 pages
-    # First item alphabetical should be annual_report.pdf
+    assert data["total_pages"] == 4
+
     assert data["items"][0]["name"] == "annual_report.pdf"

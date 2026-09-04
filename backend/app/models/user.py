@@ -1,5 +1,3 @@
-"""User SQLAlchemy ORM model representing platform users."""
-
 import uuid
 from typing import List, TYPE_CHECKING
 from sqlalchemy import BigInteger, Boolean, String
@@ -17,7 +15,6 @@ if TYPE_CHECKING:
     from app.models.activity import Activity
     from app.models.tag import Tag
     from app.models.comment import Comment
-
 
 class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     """User account entity for authentication, ownership, and permissions."""
@@ -67,7 +64,6 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         doc="Aggregated storage consumption in bytes.",
     )
 
-    # Relationships
     folders: Mapped[List["Folder"]] = relationship(
         "Folder",
         back_populates="owner",

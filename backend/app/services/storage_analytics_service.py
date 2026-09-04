@@ -1,5 +1,3 @@
-"""Storage analytics service computing metrics, breakdown by category, and quota enforcement."""
-
 from collections import defaultdict
 from typing import Dict, List, Optional
 import uuid
@@ -18,7 +16,6 @@ from app.schemas.storage_analytics import (
     StorageUsageSummaryResponse,
 )
 from app.services.search_service import SearchService
-
 
 class StorageAnalyticsService:
     """Service providing storage quota verification, analytics, and usage breakdowns."""
@@ -51,7 +48,6 @@ class StorageAnalyticsService:
         if not user:
             return 0
 
-        # Sum of size_bytes for all non-deleted files owned by user
         total_used = db.scalar(
             select(func.coalesce(func.sum(File.size_bytes), 0)).where(
                 File.owner_id == user_id,
@@ -79,7 +75,6 @@ class StorageAnalyticsService:
         available = max(0, quota - used)
         usage_pct = round((used / quota) * 100, 2) if quota > 0 else 0.0
 
-        # Query all non-deleted files owned by user
         files = db.scalars(
             select(File).where(File.owner_id == user_id, File.is_deleted.is_(False))
         ).all()
@@ -105,13 +100,12 @@ class StorageAnalyticsService:
             )
         ) or 0
 
-        # Group by category
         category_bytes: Dict[str, int] = defaultdict(int)
         category_counts: Dict[str, int] = defaultdict(int)
 
         for file in files:
             cat = SearchService.categorize_file(file.name, file.mime_type)
-            # Group pdf under documents for storage display
+
             if cat == "pdf":
                 cat = "documents"
             elif cat == "image":
@@ -148,7 +142,6 @@ class StorageAnalyticsService:
                 )
             )
 
-        # Largest files (Top 5)
         largest_files_query = (
             select(File)
             .where(File.owner_id == user_id, File.is_deleted.is_(False))
@@ -168,7 +161,6 @@ class StorageAnalyticsService:
             for f in db.scalars(largest_files_query).all()
         ]
 
-        # Recent uploads (Top 5)
         recent_uploads_query = (
             select(File)
             .where(File.owner_id == user_id, File.is_deleted.is_(False))

@@ -1,7 +1,3 @@
-/**
- * Modal to rename a file or folder.
- */
-
 import React, { useState, useEffect } from 'react';
 import { X, Edit2 } from 'lucide-react';
 import fileService from '../../services/fileService';

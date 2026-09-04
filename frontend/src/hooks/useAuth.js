@@ -1,7 +1,3 @@
-/**
- * Custom hook to access AuthContext authentication state and dispatch actions.
- */
-
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 

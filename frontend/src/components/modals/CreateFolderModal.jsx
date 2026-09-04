@@ -1,7 +1,3 @@
-/**
- * Modal to create a new folder with name and custom color palette selector.
- */
-
 import React, { useState } from 'react';
 import { X, FolderPlus, Palette } from 'lucide-react';
 import folderService from '../../services/folderService';

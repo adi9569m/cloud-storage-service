@@ -1,5 +1,3 @@
-"""FastAPI dependency providers for authentication and database sessions."""
-
 from typing import Generator
 import uuid
 from fastapi import Depends, HTTPException, status
@@ -11,12 +9,10 @@ from app.core.security import decode_token
 from app.models.user import User
 from app.services.user_service import UserService
 
-# OAuth2 scheme configured with the login token URL
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v1/auth/login",
     auto_error=True,
 )
-
 
 def get_current_user(
     db: Session = Depends(get_db),
@@ -62,7 +58,6 @@ def get_current_user(
         raise credentials_exception
 
     return user
-
 
 def get_current_active_user(
     current_user: User = Depends(get_current_user),

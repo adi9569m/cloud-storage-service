@@ -1,5 +1,3 @@
-"""Pydantic schemas for public tokenized link sharing."""
-
 import uuid
 from datetime import datetime
 from typing import List, Optional
@@ -8,7 +6,6 @@ from app.models.share import ShareRole
 from app.schemas.common import BreadcrumbItem
 from app.schemas.file import FileResponse
 from app.schemas.folder import FolderResponse
-
 
 class LinkShareCreate(BaseModel):
     """Schema for generating a public shareable link."""
@@ -30,7 +27,6 @@ class LinkShareCreate(BaseModel):
             raise ValueError("Must provide either file_id or folder_id for public link.")
         return self
 
-
 class LinkShareUpdate(BaseModel):
     """Schema for modifying public link settings."""
 
@@ -39,7 +35,6 @@ class LinkShareUpdate(BaseModel):
     clear_password: Optional[bool] = Field(False, description="Set to true to remove password protection.")
     expires_at: Optional[datetime] = Field(None, description="New expiration timestamp or null.")
     is_active: Optional[bool] = Field(None, description="Toggle active state of the public link.")
-
 
 class LinkShareResponse(BaseModel):
     """Public link metadata schema."""
@@ -60,12 +55,10 @@ class LinkShareResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class PublicLinkAccessRequest(BaseModel):
     """Payload to access a password-protected public link."""
 
     password: Optional[str] = Field(None, description="Password if required by the link.")
-
 
 class PublicLinkAccessResponse(BaseModel):
     """Response returned when consuming/inspecting a public link."""
@@ -78,7 +71,6 @@ class PublicLinkAccessResponse(BaseModel):
     file: Optional[FileResponse] = None
     folder: Optional[FolderResponse] = None
     download_url: Optional[str] = None
-
 
 class PublicFolderContentsResponse(BaseModel):
     """Listing response for public folder navigation."""

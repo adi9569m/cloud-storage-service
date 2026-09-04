@@ -1,5 +1,3 @@
-"""API routes for public link sharing and anonymous access."""
-
 from typing import List, Optional
 import uuid
 from fastapi import APIRouter, Depends, Query, Request, Response, status
@@ -20,17 +18,9 @@ from app.schemas.link_share import (
 from app.services.file_service import FileService
 from app.services.link_share_service import LinkShareService
 
-# Router for authenticated link management
 router = APIRouter(prefix="/links", tags=["Public Link Management"])
 
-# Router for unauthenticated public link consumption
 public_router = APIRouter(prefix="/public/links", tags=["Public Shared Links"])
-
-
-# ============================================================================
-# Authenticated Management Endpoints (/api/v1/links)
-# ============================================================================
-
 
 @router.post(
     "",
@@ -54,7 +44,6 @@ def create_public_link(
         ip_address=ip_address,
     )
 
-
 @router.get(
     "/file/{file_id}",
     response_model=List[LinkShareResponse],
@@ -74,7 +63,6 @@ def list_file_public_links(
         file_id=file_id,
     )
 
-
 @router.get(
     "/folder/{folder_id}",
     response_model=List[LinkShareResponse],
@@ -93,7 +81,6 @@ def list_folder_public_links(
         user_id=current_user.id,
         folder_id=folder_id,
     )
-
 
 @router.put(
     "/{link_id}",
@@ -118,7 +105,6 @@ def update_public_link(
         update_in=update_in,
         ip_address=ip_address,
     )
-
 
 @router.delete(
     "/{link_id}",
@@ -146,12 +132,6 @@ def revoke_public_link(
         detail=f"Link {link_id} has been revoked.",
     )
 
-
-# ============================================================================
-# Unauthenticated Public Consumer Endpoints (/api/v1/public/links)
-# ============================================================================
-
-
 @public_router.get(
     "/{token}",
     response_model=PublicLinkAccessResponse,
@@ -162,7 +142,7 @@ def revoke_public_link(
 def inspect_public_link(
     token: str,
     password: Optional[str] = Query(None, description="Optional password for protected links."),
-    request: Request = None,  # type: ignore
+    request: Request = None,
     db: Session = Depends(get_db),
 ) -> PublicLinkAccessResponse:
     """Inspect and access public link metadata."""
@@ -174,7 +154,6 @@ def inspect_public_link(
         ip_address=ip_address,
     )
 
-
 @public_router.post(
     "/{token}/access",
     response_model=PublicLinkAccessResponse,
@@ -185,7 +164,7 @@ def inspect_public_link(
 def access_public_link_with_password(
     token: str,
     access_in: PublicLinkAccessRequest,
-    request: Request = None,  # type: ignore
+    request: Request = None,
     db: Session = Depends(get_db),
 ) -> PublicLinkAccessResponse:
     """Access password-protected public link."""
@@ -196,7 +175,6 @@ def access_public_link_with_password(
         password=access_in.password,
         ip_address=ip_address,
     )
-
 
 @public_router.get(
     "/{token}/download",
@@ -217,7 +195,6 @@ def download_public_file(
         media_type=mime_type,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
-
 
 @public_router.get(
     "/{token}/contents",

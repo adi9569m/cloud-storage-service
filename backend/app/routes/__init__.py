@@ -1,5 +1,3 @@
-"""API routes package assembling all endpoint sub-routers."""
-
 from fastapi import APIRouter
 from app.routes.auth import router as auth_router
 from app.routes.folder import router as folder_router

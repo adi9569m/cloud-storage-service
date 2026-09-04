@@ -1,5 +1,3 @@
-"""Folder SQLAlchemy ORM model representing nested directory hierarchy."""
-
 import uuid
 from typing import List, TYPE_CHECKING
 from sqlalchemy import ForeignKey, Index, String, Uuid
@@ -13,7 +11,6 @@ if TYPE_CHECKING:
     from app.models.share import Share
     from app.models.link_share import LinkShare
     from app.models.star import Star
-
 
 class Folder(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     """Folder entity supporting multi-level nesting and soft deletion."""
@@ -47,13 +44,11 @@ class Folder(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
         doc="UI color tag for the folder.",
     )
 
-    # Table arguments / composite indexes
     __table_args__ = (
         Index("idx_folders_owner_parent", "owner_id", "parent_id", "is_deleted"),
         Index("idx_folders_is_deleted", "is_deleted", "deleted_at"),
     )
 
-    # Relationships
     owner: Mapped["User"] = relationship(
         "User",
         back_populates="folders",

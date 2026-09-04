@@ -1,5 +1,3 @@
-"""API routes for starred/favorite items."""
-
 from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -9,7 +7,6 @@ from app.schemas.star import StarredListResponse, StarToggleRequest, StarToggleR
 from app.services.star_service import StarService
 
 router = APIRouter(prefix="/stars", tags=["Starred Items"])
-
 
 @router.get(
     "",
@@ -24,7 +21,6 @@ def list_starred(
 ) -> StarredListResponse:
     """List all starred files and folders."""
     return StarService.list_starred(db=db, user_id=current_user.id)
-
 
 @router.post(
     "/toggle",

@@ -1,7 +1,3 @@
-/**
- * Slide-over drawer for collaborating on file comments and notes.
- */
-
 import React, { useState, useEffect } from 'react';
 import { X, MessageSquare, Send, Trash2, Clock, User } from 'lucide-react';
 import fileService from '../../services/fileService';
@@ -64,7 +60,7 @@ export const FileCommentsDrawer = ({ isOpen, onClose, file }) => {
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="flex h-full w-full max-w-md flex-col bg-white shadow-2xl animate-in slide-in-from-right duration-200">
-        {/* Header */}
+
         <div className="flex items-center justify-between border-b border-slate-100 p-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-drive-50 text-drive-600">
@@ -83,7 +79,6 @@ export const FileCommentsDrawer = ({ isOpen, onClose, file }) => {
           </button>
         </div>
 
-        {/* Comment List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {error && (
             <div className="rounded-xl bg-red-50 p-2.5 text-xs text-red-600 border border-red-200">
@@ -136,7 +131,6 @@ export const FileCommentsDrawer = ({ isOpen, onClose, file }) => {
           )}
         </div>
 
-        {/* Input Footer */}
         <form onSubmit={handleAddComment} className="border-t border-slate-100 p-4 bg-white">
           <div className="flex gap-2">
             <input

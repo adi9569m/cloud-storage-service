@@ -1,7 +1,3 @@
-/**
- * Standalone public share link viewing and download page (no login required).
- */
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -95,7 +91,7 @@ export const PublicSharePage = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between">
-      {/* Header */}
+
       <header className="flex h-16 items-center justify-between border-b border-slate-800 bg-slate-900/90 px-6 backdrop-blur">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-drive-600 text-white shadow-sm">
@@ -112,7 +108,6 @@ export const PublicSharePage = () => {
         </div>
       </header>
 
-      {/* Main Body */}
       <main className="flex-1 flex items-center justify-center p-4 md:p-8">
         {isLoading ? (
           <div className="flex flex-col items-center gap-3 text-slate-400">
@@ -134,7 +129,7 @@ export const PublicSharePage = () => {
             </Link>
           </div>
         ) : linkData?.requires_password && !passwordSubmitted ? (
-          /* Password Verification Form */
+
           <div className="max-w-md w-full rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 mb-4">
               <KeyRound className="h-7 w-7" />
@@ -168,7 +163,7 @@ export const PublicSharePage = () => {
             </form>
           </div>
         ) : linkData?.file ? (
-          /* Single Shared File View */
+
           <div className="max-w-2xl w-full rounded-3xl border border-slate-800 bg-slate-900/90 p-6 md:p-8 shadow-2xl backdrop-blur">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-800">
               <div className="flex items-center gap-4 overflow-hidden">
@@ -200,7 +195,6 @@ export const PublicSharePage = () => {
               </button>
             </div>
 
-            {/* Media Preview if applicable */}
             {getFileCategory(linkData.file.mime_type, linkData.file.name) === 'image' && (
               <div className="mt-6 flex justify-center overflow-hidden rounded-2xl bg-slate-950 p-4 border border-slate-800">
                 <img
@@ -212,7 +206,7 @@ export const PublicSharePage = () => {
             )}
           </div>
         ) : linkData?.folder ? (
-          /* Shared Folder Explorer */
+
           <div className="max-w-4xl w-full rounded-3xl border border-slate-800 bg-slate-900/90 p-6 shadow-2xl backdrop-blur space-y-5">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3">
@@ -224,7 +218,6 @@ export const PublicSharePage = () => {
               </div>
             </div>
 
-            {/* Subfolders and Files */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden divide-y divide-slate-800/60 text-xs">
               {folderContents?.subfolders?.map((sf) => (
                 <div
@@ -268,7 +261,6 @@ export const PublicSharePage = () => {
         ) : null}
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-slate-800 py-4 text-center text-xs text-slate-500">
         Powered by Cloud Storage Service • End-to-end encrypted file sharing
       </footer>

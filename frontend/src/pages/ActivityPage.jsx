@@ -1,7 +1,3 @@
-/**
- * Activity Log & Audit Trail page displaying user actions and security events.
- */
-
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Activity,
@@ -65,7 +61,6 @@ export const ActivityPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Filters & Pagination
   const [resourceTypeFilter, setResourceTypeFilter] = useState('');
   const [actionFilter, setActionFilter] = useState('');
   const [page, setPage] = useState(0);
@@ -99,7 +94,7 @@ export const ActivityPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div className="flex items-center gap-2.5">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-drive-50 text-drive-600 shadow-sm">
@@ -123,14 +118,12 @@ export const ActivityPage = () => {
         </button>
       </div>
 
-      {/* Filter Controls */}
       <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-soft">
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 mr-2">
           <Filter className="h-4 w-4 text-drive-600" />
           <span>Filter by:</span>
         </div>
 
-        {/* Resource Type Filter */}
         <select
           value={resourceTypeFilter}
           onChange={(e) => {
@@ -146,7 +139,6 @@ export const ActivityPage = () => {
           <option value="LINK_SHARE">Public Links</option>
         </select>
 
-        {/* Action Type Filter */}
         <select
           value={actionFilter}
           onChange={(e) => {
@@ -189,7 +181,6 @@ export const ActivityPage = () => {
         </div>
       )}
 
-      {/* Activity Timeline List */}
       {isLoading ? (
         <div className="flex h-96 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-drive-600" />
@@ -246,7 +237,6 @@ export const ActivityPage = () => {
                     </div>
                   </div>
 
-                  {/* Metadata and Timestamp */}
                   <div className="flex items-center gap-3 text-xs text-slate-400 sm:self-center pl-13 sm:pl-0">
                     {item.ip_address && (
                       <span className="hidden md:inline rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-500">
@@ -263,7 +253,6 @@ export const ActivityPage = () => {
             })}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-2 pt-2 text-xs text-slate-500">
               <span>

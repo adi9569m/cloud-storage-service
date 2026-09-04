@@ -1,7 +1,3 @@
-/**
- * Storage quota analytics, category distribution, and telemetry dashboard.
- */
-
 import React, { useState, useEffect } from 'react';
 import storageService from '../services/storageService';
 import {
@@ -86,7 +82,7 @@ export const StoragePage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-800">Storage Overview</h1>
@@ -112,7 +108,6 @@ export const StoragePage = () => {
         </div>
       )}
 
-      {/* Main Meter Card */}
       <div className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8 shadow-soft">
         <div className="flex items-center gap-4 mb-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-drive-50 text-drive-600 shadow-sm">
@@ -128,7 +123,6 @@ export const StoragePage = () => {
           </div>
         </div>
 
-        {/* Multi-segment progress bar */}
         <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 flex">
           {categories.map((cat) => {
             const pct = cat.data?.percentage_of_used || 0;
@@ -144,7 +138,6 @@ export const StoragePage = () => {
           })}
         </div>
 
-        {/* Legend */}
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {categories.map((cat) => {
             const Icon = cat.icon;
@@ -164,7 +157,6 @@ export const StoragePage = () => {
         </div>
       </div>
 
-      {/* Top Largest Files */}
       {summary?.largest_files && summary.largest_files.length > 0 && (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
           <h3 className="text-base font-bold text-slate-800 mb-4">Largest Files Taking Storage</h3>

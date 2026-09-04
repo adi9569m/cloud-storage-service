@@ -1,7 +1,3 @@
-/**
- * Modal to upload multiple files with drag-and-drop, progress tracking, and batch processing.
- */
-
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { X, UploadCloud, File as FileIcon, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
@@ -11,7 +7,7 @@ import { formatBytes, getFileIconDetails } from '../../utils/formatters';
 export const FileUploadModal = ({ isOpen, onClose, folderId = null, folderName = 'Root', onSuccess }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
-  const [uploadStatus, setUploadStatus] = useState({}); // 'uploading' | 'success' | 'error'
+  const [uploadStatus, setUploadStatus] = useState({});
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -26,7 +22,7 @@ export const FileUploadModal = ({ isOpen, onClose, folderId = null, folderName =
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: true,
-    maxSize: 500 * 1024 * 1024, // 500 MB per file limit
+    maxSize: 500 * 1024 * 1024,
   });
 
   if (!isOpen) return null;
@@ -90,7 +86,7 @@ export const FileUploadModal = ({ isOpen, onClose, folderId = null, folderName =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-150">
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-modal transition-all animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]">
-        {/* Header */}
+
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-drive-50 text-drive-600">
@@ -110,7 +106,6 @@ export const FileUploadModal = ({ isOpen, onClose, folderId = null, folderName =
           </button>
         </div>
 
-        {/* Dropzone Area */}
         <div className="mt-4 flex-1 overflow-y-auto space-y-4 pr-1">
           {errorMessage && (
             <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 border border-red-200">
@@ -138,7 +133,6 @@ export const FileUploadModal = ({ isOpen, onClose, folderId = null, folderName =
             </p>
           </div>
 
-          {/* Selected Files List */}
           {selectedFiles.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-semibold text-slate-600 px-1">
@@ -193,7 +187,6 @@ export const FileUploadModal = ({ isOpen, onClose, folderId = null, folderName =
           )}
         </div>
 
-        {/* Footer actions */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-4">
           <button
             type="button"

@@ -1,5 +1,3 @@
-"""Authentication service handling login, token generation, and refresh operations."""
-
 import uuid
 from fastapi import HTTPException, status
 import jwt
@@ -13,7 +11,6 @@ from app.core.security import (
 from app.models.user import User
 from app.schemas.token import Token
 from app.services.user_service import UserService
-
 
 class AuthService:
     """Service class for user authentication and token issuance."""

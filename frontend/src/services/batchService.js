@@ -1,14 +1,7 @@
-/**
- * Batch operations API service client for bulk moves, copies, deletions,
- * starring, and ZIP downloads.
- */
-
 import apiClient from './api';
 
 export const batchService = {
-  /**
-   * Bulk soft-delete items to trash.
-   */
+
   async batchDelete({ file_ids = [], folder_ids = [] }) {
     const response = await apiClient.post('/batch/delete', {
       file_ids,
@@ -17,9 +10,6 @@ export const batchService = {
     return response.data;
   },
 
-  /**
-   * Bulk restore items from trash.
-   */
   async batchRestore({ file_ids = [], folder_ids = [] }) {
     const response = await apiClient.post('/batch/restore', {
       file_ids,
@@ -28,9 +18,6 @@ export const batchService = {
     return response.data;
   },
 
-  /**
-   * Bulk permanently purge items.
-   */
   async batchPurge({ file_ids = [], folder_ids = [] }) {
     const response = await apiClient.post('/batch/purge', {
       file_ids,
@@ -39,9 +26,6 @@ export const batchService = {
     return response.data;
   },
 
-  /**
-   * Bulk move items to target destination folder.
-   */
   async batchMove({ file_ids = [], folder_ids = [], destination_folder_id = null }) {
     const response = await apiClient.post('/batch/move', {
       file_ids,
@@ -51,9 +35,6 @@ export const batchService = {
     return response.data;
   },
 
-  /**
-   * Bulk duplicate files to target destination folder.
-   */
   async batchCopy({ file_ids = [], destination_folder_id = null }) {
     const response = await apiClient.post('/batch/copy', {
       file_ids,
@@ -62,9 +43,6 @@ export const batchService = {
     return response.data;
   },
 
-  /**
-   * Bulk star or unstar files and folders.
-   */
   async batchStar({ file_ids = [], folder_ids = [], is_starred = true }) {
     const response = await apiClient.post('/batch/star', {
       file_ids,
@@ -74,9 +52,6 @@ export const batchService = {
     return response.data;
   },
 
-  /**
-   * Download multiple files and folders packed into a ZIP archive.
-   */
   async batchDownloadZip({ file_ids = [], folder_ids = [] }, archiveName = 'archive.zip') {
     const response = await apiClient.post(
       '/batch/download',

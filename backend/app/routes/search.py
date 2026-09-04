@@ -1,5 +1,3 @@
-"""API router for multi-faceted search and advanced filtering."""
-
 from datetime import datetime
 from typing import Optional
 import uuid
@@ -18,7 +16,6 @@ from app.schemas.search import (
 from app.services.search_service import SearchService
 
 router = APIRouter(prefix="/search", tags=["Search"])
-
 
 @router.get("", response_model=SearchResponse)
 def search_items(

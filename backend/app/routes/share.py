@@ -1,5 +1,3 @@
-"""API routes for user-to-user sharing and role-based access control."""
-
 from typing import List
 import uuid
 from fastapi import APIRouter, Depends, Request, status
@@ -18,7 +16,6 @@ from app.schemas.share import (
 from app.services.share_service import ShareService
 
 router = APIRouter(prefix="/shares", tags=["Shares & Collaboration"])
-
 
 @router.post(
     "",
@@ -42,7 +39,6 @@ def create_share(
         ip_address=ip_address,
     )
 
-
 @router.get(
     "/shared-with-me",
     response_model=SharedWithMeResponse,
@@ -57,7 +53,6 @@ def list_shared_with_me(
     """Get items shared with me."""
     return ShareService.list_shared_with_me(db=db, user_id=current_user.id)
 
-
 @router.get(
     "/shared-by-me",
     response_model=SharedByMeResponse,
@@ -71,7 +66,6 @@ def list_shared_by_me(
 ) -> SharedByMeResponse:
     """Get shares granted by me."""
     return ShareService.list_shared_by_me(db=db, user_id=current_user.id)
-
 
 @router.get(
     "/file/{file_id}",
@@ -92,7 +86,6 @@ def list_file_shares(
         file_id=file_id,
     )
 
-
 @router.get(
     "/folder/{folder_id}",
     response_model=List[ShareResponse],
@@ -111,7 +104,6 @@ def list_folder_shares(
         user_id=current_user.id,
         folder_id=folder_id,
     )
-
 
 @router.put(
     "/{share_id}",
@@ -136,7 +128,6 @@ def update_share_role(
         share_update=share_update,
         ip_address=ip_address,
     )
-
 
 @router.delete(
     "/{share_id}",

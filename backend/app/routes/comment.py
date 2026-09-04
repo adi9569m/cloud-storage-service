@@ -1,5 +1,3 @@
-"""API router for file collaboration comments and notes."""
-
 from typing import List
 import uuid
 from fastapi import APIRouter, Depends, Request, status
@@ -17,7 +15,6 @@ from app.schemas.comment import (
 from app.services.comment_service import CommentService
 
 router = APIRouter(prefix="/files", tags=["File Comments & Collaboration"])
-
 
 @router.post("/{file_id}/comments", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)
 def create_file_comment(
@@ -37,7 +34,6 @@ def create_file_comment(
         ip_address=ip_addr,
     )
 
-
 @router.get("/{file_id}/comments", response_model=CommentListResponse)
 def list_file_comments(
     file_id: uuid.UUID,
@@ -50,7 +46,6 @@ def list_file_comments(
         file_id=file_id,
         user_id=current_user.id,
     )
-
 
 @router.put("/comments/{comment_id}", response_model=CommentResponse)
 def update_comment(
@@ -66,7 +61,6 @@ def update_comment(
         user_id=current_user.id,
         comment_in=comment_in,
     )
-
 
 @router.delete("/comments/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_comment(

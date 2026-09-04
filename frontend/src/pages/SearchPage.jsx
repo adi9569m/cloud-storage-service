@@ -1,7 +1,3 @@
-/**
- * Advanced multi-faceted search results and filtering page.
- */
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
@@ -49,7 +45,6 @@ export const SearchPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Modals
   const [previewFile, setPreviewFile] = useState(null);
   const [shareTarget, setShareTarget] = useState(null);
 
@@ -91,7 +86,7 @@ export const SearchPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Search Header */}
+
       <div className="flex flex-col gap-4 border-b border-slate-200 pb-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -127,9 +122,8 @@ export const SearchPage = () => {
           </form>
         </div>
 
-        {/* Facet Filters Bar */}
         <div className="flex flex-wrap items-center gap-2 pt-1">
-          {/* Type Filter Pills */}
+
           <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto">
             {TYPE_FILTERS.map((f) => (
               <button
@@ -148,7 +142,6 @@ export const SearchPage = () => {
 
           <div className="h-4 w-px bg-slate-200 mx-1 hidden md:block" />
 
-          {/* Starred Toggle */}
           <button
             onClick={() => setIsStarredOnly(!isStarredOnly)}
             className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
@@ -169,7 +162,6 @@ export const SearchPage = () => {
         </div>
       )}
 
-      {/* Results Table */}
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">
           <RefreshCw className="h-8 w-8 animate-spin text-drive-600" />
@@ -201,7 +193,7 @@ export const SearchPage = () => {
                 key={item.id}
                 className="grid grid-cols-12 items-center px-4 py-3 text-xs hover:bg-slate-50 transition-colors"
               >
-                {/* Name */}
+
                 <div className="col-span-6 flex items-center gap-3 overflow-hidden">
                   {isFolder ? (
                     <FolderIcon
@@ -238,12 +230,10 @@ export const SearchPage = () => {
                   </div>
                 </div>
 
-                {/* Modified Date */}
                 <div className="col-span-3 text-[11px] text-slate-500">
                   {formatDate(item.updated_at || item.created_at)}
                 </div>
 
-                {/* Size & Actions */}
                 <div className="col-span-3 flex items-center justify-end gap-2">
                   <span className="text-[11px] text-slate-500 mr-2 hidden sm:inline">
                     {isFolder ? 'Folder' : formatBytes(item.size_bytes)}
@@ -283,7 +273,6 @@ export const SearchPage = () => {
         </div>
       )}
 
-      {/* Preview Modal */}
       <FilePreviewModal
         isOpen={Boolean(previewFile)}
         file={previewFile}

@@ -1,8 +1,5 @@
-"""Pydantic validation schemas for authentication tokens."""
-
 from typing import Optional
 from pydantic import BaseModel, Field
-
 
 class Token(BaseModel):
     """Schema for returning JWT access and refresh token pair."""
@@ -11,12 +8,10 @@ class Token(BaseModel):
     refresh_token: str = Field(..., description="Long-lived JWT refresh token")
     token_type: str = Field(default="bearer", description="Token type")
 
-
 class TokenRefreshRequest(BaseModel):
     """Schema for requesting a new token pair using a refresh token."""
 
     refresh_token: str = Field(..., description="Valid JWT refresh token")
-
 
 class TokenPayload(BaseModel):
     """Schema representing the decoded payload of a JWT token."""

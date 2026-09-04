@@ -1,5 +1,3 @@
-"""Folder management service handling hierarchical directory operations, moves, cascades, and star toggles."""
-
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Set
 import uuid
@@ -20,7 +18,6 @@ from app.schemas.folder import (
     FolderUpdate,
 )
 from app.services.activity_service import ActivityService
-
 
 class FolderService:
     """Business logic service for folder hierarchy and management."""
@@ -53,7 +50,7 @@ class FolderService:
         ip_address: Optional[str] = None,
     ) -> Folder:
         """Create a new folder under a parent directory or at the root level."""
-        # 1. Validate parent folder if specified
+
         if folder_in.parent_id is not None:
             parent = FolderService.get_folder_by_id(
                 db=db,
@@ -67,7 +64,6 @@ class FolderService:
                     detail="Parent folder not found.",
                 )
 
-        # 2. Check for duplicate sibling name
         duplicate_query = select(Folder).where(
             Folder.owner_id == user_id,
             Folder.parent_id == folder_in.parent_id,
@@ -80,7 +76,6 @@ class FolderService:
                 detail=f"A folder named '{folder_in.name}' already exists in this location.",
             )
 
-        # 3. Create folder instance
         folder = Folder(
             name=folder_in.name,
             parent_id=folder_in.parent_id,
@@ -90,7 +85,6 @@ class FolderService:
         db.add(folder)
         db.flush()
 
-        # 4. Log audit activity
         ActivityService.log_activity(
             db=db,
             action="FOLDER_CREATE",
@@ -246,7 +240,6 @@ class FolderService:
         starred_folder_ids = FolderService.get_starred_folder_ids(db=db, user_id=user_id)
         starred_file_ids = FolderService.get_starred_file_ids(db=db, user_id=user_id)
 
-        # 1. Fetch subfolders
         folders_query = select(Folder).where(
             Folder.owner_id == user_id,
             Folder.parent_id == folder_id,
@@ -283,7 +276,6 @@ class FolderService:
             for f in subfolders
         ]
 
-        # 2. Fetch files
         files_query = select(File).where(
             File.owner_id == user_id,
             File.folder_id == folder_id,
@@ -345,7 +337,6 @@ class FolderService:
             ).order_by(func.lower(Folder.name).asc())
         ).all()
 
-        # Group folders by parent_id
         children_map: Dict[Optional[uuid.UUID], List[Folder]] = {}
         for folder in all_folders:
             children_map.setdefault(folder.parent_id, []).append(folder)
@@ -385,7 +376,7 @@ class FolderService:
         details: Dict[str, Any] = {}
 
         if update_in.name is not None and update_in.name != folder.name:
-            # Check duplicate name among siblings
+
             dup_query = select(Folder).where(
                 Folder.owner_id == user_id,
                 Folder.parent_id == folder.parent_id,
@@ -438,18 +429,15 @@ class FolderService:
             include_deleted=False,
         )
 
-        # 1. Prevent moving into self
         if destination_parent_id == folder.id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Cannot move a folder into itself.",
             )
 
-        # 2. If moving to same parent, no-op
         if destination_parent_id == folder.parent_id:
             return folder
 
-        # 3. If destination is specified, validate destination and prevent circular nesting
         if destination_parent_id is not None:
             dest_folder = FolderService.get_folder_by_id(
                 db=db,
@@ -463,7 +451,6 @@ class FolderService:
                     detail="Destination folder not found.",
                 )
 
-            # Check if destination is a descendant of the source folder
             current_ancestor_id: Optional[uuid.UUID] = dest_folder.parent_id
             depth = 0
             while current_ancestor_id is not None and depth < 50:
@@ -480,7 +467,6 @@ class FolderService:
                 current_ancestor_id = ancestor.parent_id
                 depth += 1
 
-        # 4. Check for name collision in destination
         dup_query = select(Folder).where(
             Folder.owner_id == user_id,
             Folder.parent_id == destination_parent_id,
@@ -559,14 +545,12 @@ class FolderService:
         descendant_ids = FolderService._get_all_descendant_folder_ids(db, folder.id, user_id)
         all_target_folder_ids = [folder.id] + descendant_ids
 
-        # Mark folder and subfolders as deleted
         for fid in all_target_folder_ids:
             f = db.scalars(select(Folder).where(Folder.id == fid)).first()
             if f and not f.is_deleted:
                 f.is_deleted = True
                 f.deleted_at = now
 
-        # Mark all files in these folders as deleted
         files = db.scalars(
             select(File).where(
                 File.folder_id.in_(all_target_folder_ids),
@@ -617,7 +601,6 @@ class FolderService:
                 detail="Folder is not in the Trash.",
             )
 
-        # If parent folder is also deleted or nonexistent, restore this folder directly to Root
         if folder.parent_id is not None:
             parent = db.scalars(
                 select(Folder).where(Folder.id == folder.parent_id, Folder.owner_id == user_id)
@@ -625,7 +608,6 @@ class FolderService:
             if not parent or parent.is_deleted:
                 folder.parent_id = None
 
-        # Check duplicate name collision in target destination
         dup_query = select(Folder).where(
             Folder.owner_id == user_id,
             Folder.parent_id == folder.parent_id,
@@ -642,14 +624,12 @@ class FolderService:
         descendant_ids = FolderService._get_all_descendant_folder_ids(db, folder.id, user_id)
         all_target_folder_ids = [folder.id] + descendant_ids
 
-        # Restore folders
         for fid in all_target_folder_ids:
             f = db.scalars(select(Folder).where(Folder.id == fid)).first()
             if f and f.is_deleted:
                 f.is_deleted = False
                 f.deleted_at = None
 
-        # Restore files
         files = db.scalars(
             select(File).where(
                 File.folder_id.in_(all_target_folder_ids),
@@ -691,13 +671,13 @@ class FolderService:
         )
 
         descendant_ids = FolderService._get_all_descendant_folder_ids(db, folder.id, user_id)
-        # Delete from leaf to root to respect foreign key restrictions
+
         all_target_folder_ids = list(reversed(descendant_ids)) + [folder.id]
 
         for fid in all_target_folder_ids:
             f = db.scalars(select(Folder).where(Folder.id == fid)).first()
             if f:
-                # Delete files inside the folder first
+
                 child_files = db.scalars(select(File).where(File.folder_id == fid)).all()
                 for cfile in child_files:
                     db.delete(cfile)

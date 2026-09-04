@@ -1,7 +1,3 @@
-/**
- * Utility formatting functions for Cloud Storage frontend.
- */
-
 import React from 'react';
 import {
   FileText,
@@ -14,9 +10,6 @@ import {
   FileQuestion,
 } from 'lucide-react';
 
-/**
- * Format bytes into human readable format (e.g. 12.5 MB).
- */
 export const formatBytes = (bytes, decimals = 1) => {
   if (!bytes || bytes === 0) return '0 B';
   const k = 1024;
@@ -26,9 +19,6 @@ export const formatBytes = (bytes, decimals = 1) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 
-/**
- * Format ISO date string into friendly readable date and time.
- */
 export const formatDate = (isoString) => {
   if (!isoString) return '—';
   const date = new Date(isoString);
@@ -49,9 +39,6 @@ export const formatDate = (isoString) => {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
-/**
- * Categorize MIME type into general file category.
- */
 export const getFileCategory = (mimeType = '', filename = '') => {
   const mime = (mimeType || '').toLowerCase();
   const ext = (filename.split('.').pop() || '').toLowerCase();
@@ -97,9 +84,6 @@ export const getFileCategory = (mimeType = '', filename = '') => {
   return 'file';
 };
 
-/**
- * Return appropriate Lucide Icon component and color for MIME category.
- */
 export const getFileIconDetails = (mimeType, filename) => {
   const category = getFileCategory(mimeType, filename);
 

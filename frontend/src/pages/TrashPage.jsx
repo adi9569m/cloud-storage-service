@@ -1,7 +1,3 @@
-/**
- * Trash bin management page for restoring and permanently purging items.
- */
-
 import React, { useState, useEffect } from 'react';
 import {
   Trash2,
@@ -108,7 +104,7 @@ export const TrashPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-800">Trash Bin</h1>
@@ -149,7 +145,6 @@ export const TrashPage = () => {
         </div>
       )}
 
-      {/* Content */}
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">
           <RefreshCw className="h-8 w-8 animate-spin text-drive-600" />
@@ -172,7 +167,6 @@ export const TrashPage = () => {
             <div className="col-span-3 sm:col-span-3 text-right">Actions</div>
           </div>
 
-          {/* Trashed Folders */}
           {folders.map((folder) => (
             <div
               key={folder.id}
@@ -207,7 +201,6 @@ export const TrashPage = () => {
             </div>
           ))}
 
-          {/* Trashed Files */}
           {files.map((file) => {
             const { icon: Icon, color, bg } = getFileIconDetails(file.mime_type, file.name);
             return (

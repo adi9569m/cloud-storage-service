@@ -1,5 +1,3 @@
-"""User management service handling CRUD and profile business logic."""
-
 from typing import Optional
 import uuid
 from fastapi import HTTPException, status
@@ -8,7 +6,6 @@ from sqlalchemy.orm import Session
 from app.core.security import hash_password, verify_password
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
-
 
 class UserService:
     """Service class for user record management."""

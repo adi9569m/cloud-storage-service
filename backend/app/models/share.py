@@ -1,5 +1,3 @@
-"""Share SQLAlchemy ORM model representing granular user-to-user access permissions."""
-
 import enum
 import uuid
 from typing import TYPE_CHECKING
@@ -13,13 +11,11 @@ if TYPE_CHECKING:
     from app.models.file import File
     from app.models.folder import Folder
 
-
 class ShareRole(str, enum.Enum):
     """Permitted access roles for shared resources."""
 
     VIEWER = "VIEWER"
     EDITOR = "EDITOR"
-
 
 class Share(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     """Direct user-to-user share permission record with role-based access control."""
@@ -63,7 +59,6 @@ class Share(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         doc="Assigned role: VIEWER (read-only) or EDITOR (read/write).",
     )
 
-    # Table constraints: exactly one target must be specified
     __table_args__ = (
         CheckConstraint(
             "(file_id IS NOT NULL AND folder_id IS NULL) OR (file_id IS NULL AND folder_id IS NOT NULL)",
@@ -73,7 +68,6 @@ class Share(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         Index("idx_shares_grantee_folder", "grantee_id", "folder_id"),
     )
 
-    # Relationships
     granter: Mapped["User"] = relationship(
         "User",
         back_populates="shares_granted",

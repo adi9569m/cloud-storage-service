@@ -1,7 +1,3 @@
-/**
- * Tags and Labels management and labeled items browsing page.
- */
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -45,7 +41,6 @@ export const TagsPage = () => {
   const [isLoadingItems, setIsLoadingItems] = useState(false);
   const [error, setError] = useState('');
 
-  // Preview Modal
   const [previewFile, setPreviewFile] = useState(null);
 
   const loadTags = async () => {
@@ -121,7 +116,7 @@ export const TagsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-800">Tags & Labels</h1>
@@ -144,9 +139,8 @@ export const TagsPage = () => {
         </div>
       )}
 
-      {/* Main Grid: Left Tags sidebar, Right Tagged Items Explorer */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left: Tag Manager List & Creator */}
+
         <div className="lg:col-span-1 space-y-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -188,7 +182,6 @@ export const TagsPage = () => {
             </form>
           </div>
 
-          {/* Tags List */}
           <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm space-y-1">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 px-2 py-1.5">
               Tags ({tags.length})
@@ -230,7 +223,6 @@ export const TagsPage = () => {
           </div>
         </div>
 
-        {/* Right: Tagged Items */}
         <div className="lg:col-span-3 space-y-4">
           {selectedTag ? (
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
@@ -263,7 +255,7 @@ export const TagsPage = () => {
                 </div>
               ) : (
                 <div className="divide-y divide-slate-100">
-                  {/* Folders */}
+
                   {taggedItems.folders?.map((f) => (
                     <div
                       key={f.id}
@@ -291,7 +283,6 @@ export const TagsPage = () => {
                     </div>
                   ))}
 
-                  {/* Files */}
                   {taggedItems.files?.map((f) => {
                     const { icon: Icon, color, bg } = getFileIconDetails(f.mime_type, f.name);
                     return (
@@ -350,7 +341,6 @@ export const TagsPage = () => {
         </div>
       </div>
 
-      {/* Preview Modal */}
       <FilePreviewModal
         isOpen={Boolean(previewFile)}
         file={previewFile}

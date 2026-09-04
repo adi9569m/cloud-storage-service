@@ -1,12 +1,9 @@
-"""In-memory sliding-window rate limiter for protecting endpoints against brute-force and abuse."""
-
 from collections import defaultdict
 from datetime import datetime, timezone
 import time
 from typing import Callable, Dict, List
 from fastapi import HTTPException, Request, status
 from app.core.config import settings
-
 
 class InMemoryRateLimiter:
     """Sliding-window in-memory rate limiter tracking client IP hit timestamps."""
@@ -19,7 +16,6 @@ class InMemoryRateLimiter:
         now = time.time()
         window_start = now - window_seconds
 
-        # Clean older records
         valid_timestamps = [ts for ts in self._records[key] if ts > window_start]
         self._records[key] = valid_timestamps
 
@@ -33,9 +29,7 @@ class InMemoryRateLimiter:
         """Clear all rate limit state (useful in test teardown)."""
         self._records.clear()
 
-
 limiter = InMemoryRateLimiter()
-
 
 def check_rate_limit(max_requests: int = 60, window_seconds: int = 60) -> Callable:
     """FastAPI route dependency factory for rate limiting."""

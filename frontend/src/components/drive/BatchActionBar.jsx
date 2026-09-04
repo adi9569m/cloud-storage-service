@@ -1,7 +1,3 @@
-/**
- * Floating batch operations action bar displayed when items are selected.
- */
-
 import React from 'react';
 import {
   X,

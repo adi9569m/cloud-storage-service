@@ -1,11 +1,8 @@
-"""Pydantic schemas for multi-facet search and filtering."""
-
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 import uuid
 from pydantic import BaseModel, ConfigDict, Field
-
 
 class SearchTypeFilter(str, Enum):
     """Filter resource types or file categories."""
@@ -22,7 +19,6 @@ class SearchTypeFilter(str, Enum):
     CODE = "code"
     OTHER = "other"
 
-
 class SearchSortBy(str, Enum):
     """Sortable fields for search results."""
 
@@ -31,13 +27,11 @@ class SearchSortBy(str, Enum):
     UPDATED_AT = "updated_at"
     SIZE_BYTES = "size_bytes"
 
-
 class SearchSortOrder(str, Enum):
     """Sorting direction."""
 
     ASC = "asc"
     DESC = "desc"
-
 
 class SearchResultItem(BaseModel):
     """Single item returned in search results representing a file or folder."""
@@ -57,7 +51,6 @@ class SearchResultItem(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-
 class SearchFacets(BaseModel):
     """Facet count breakdown for search queries."""
 
@@ -71,7 +64,6 @@ class SearchFacets(BaseModel):
     archives: int = 0
     code: int = 0
     other: int = 0
-
 
 class SearchResponse(BaseModel):
     """Paginated search response with faceted count breakdown."""

@@ -1,5 +1,3 @@
-"""Star SQLAlchemy ORM model representing user-starred files and folders."""
-
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -12,7 +10,6 @@ if TYPE_CHECKING:
     from app.models.user import User
     from app.models.file import File
     from app.models.folder import Folder
-
 
 class Star(Base, UUIDPrimaryKeyMixin):
     """User star/favorite bookmark entity for quick resource access."""
@@ -49,7 +46,6 @@ class Star(Base, UUIDPrimaryKeyMixin):
         doc="Timestamp when the item was starred (UTC).",
     )
 
-    # Table constraints: exactly one target must be specified
     __table_args__ = (
         CheckConstraint(
             "(file_id IS NOT NULL AND folder_id IS NULL) OR (file_id IS NULL AND folder_id IS NOT NULL)",
@@ -59,7 +55,6 @@ class Star(Base, UUIDPrimaryKeyMixin):
         Index("idx_stars_user_folder", "user_id", "folder_id"),
     )
 
-    # Relationships
     user: Mapped["User"] = relationship(
         "User",
         back_populates="stars",

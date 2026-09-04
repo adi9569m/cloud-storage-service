@@ -1,5 +1,3 @@
-"""Service handling audit trail, system activity logging, and activity feeds."""
-
 import uuid
 from typing import Any, Dict, List, Optional
 from fastapi import HTTPException, status
@@ -7,7 +5,6 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 from app.models.activity import Activity
 from app.schemas.activity import ActivityListResponse, ActivityResponse
-
 
 class ActivityService:
     """Provides methods to record and query audit logs for resource actions."""

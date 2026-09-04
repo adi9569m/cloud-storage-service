@@ -1,12 +1,9 @@
-"""Pydantic schemas for starred/favorite items."""
-
 import uuid
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from app.schemas.file import FileResponse
 from app.schemas.folder import FolderResponse
-
 
 class StarToggleRequest(BaseModel):
     """Payload to toggle star bookmark for a file or folder."""
@@ -25,7 +22,6 @@ class StarToggleRequest(BaseModel):
             raise ValueError("Must provide either file_id or folder_id to toggle star.")
         return self
 
-
 class StarToggleResponse(BaseModel):
     """Response returned after toggling star state."""
 
@@ -33,7 +29,6 @@ class StarToggleResponse(BaseModel):
     resource_type: str
     resource_id: uuid.UUID
     message: str
-
 
 class StarResponse(BaseModel):
     """Schema representing a Star record."""
@@ -45,7 +40,6 @@ class StarResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-
 
 class StarredListResponse(BaseModel):
     """Unified response containing all starred folders and files for the user."""

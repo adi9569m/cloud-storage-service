@@ -1,5 +1,3 @@
-"""Pydantic schemas for direct user-to-user sharing and RBAC."""
-
 import uuid
 from datetime import datetime
 from typing import List, Optional
@@ -7,7 +5,6 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 from app.models.share import ShareRole
 from app.schemas.file import FileResponse
 from app.schemas.folder import FolderResponse
-
 
 class ShareCreate(BaseModel):
     """Schema for granting resource access to another user by email."""
@@ -28,12 +25,10 @@ class ShareCreate(BaseModel):
             raise ValueError("Must provide either file_id or folder_id to share.")
         return self
 
-
 class ShareUpdate(BaseModel):
     """Schema for updating an existing share's role permission."""
 
     role: ShareRole = Field(..., description="Updated role: VIEWER or EDITOR.")
-
 
 class ShareResponse(BaseModel):
     """Schema representing a direct share record."""
@@ -53,7 +48,6 @@ class ShareResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class SharedItemResponse(BaseModel):
     """Schema representing an item shared with the current user."""
 
@@ -67,14 +61,12 @@ class SharedItemResponse(BaseModel):
     shared_by_name: Optional[str] = None
     shared_at: datetime
 
-
 class SharedWithMeResponse(BaseModel):
     """Response envelope for all items shared with the current user."""
 
     files: List[SharedItemResponse] = Field(default_factory=list)
     folders: List[SharedItemResponse] = Field(default_factory=list)
     total_count: int = 0
-
 
 class SharedByMeResponse(BaseModel):
     """Response envelope for all shares granted by the current user."""

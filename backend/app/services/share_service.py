@@ -1,5 +1,3 @@
-"""Share service handling user-to-user collaboration, RBAC permissions, and access checks."""
-
 import uuid
 from typing import List, Optional, Tuple
 from fastapi import HTTPException, status
@@ -20,7 +18,6 @@ from app.schemas.share import (
     ShareUpdate,
 )
 from app.services.activity_service import ActivityService
-
 
 class ShareService:
     """Business logic for resource sharing and permission validation."""
@@ -51,7 +48,7 @@ class ShareService:
         ip_address: Optional[str] = None,
     ) -> ShareResponse:
         """Share a file or folder with another user by email."""
-        # 1. Lookup recipient user
+
         grantee = db.scalar(
             select(User).where(User.email == share_in.grantee_email.lower().strip())
         )
@@ -67,7 +64,6 @@ class ShareService:
                 detail="Cannot share resources with yourself.",
             )
 
-        # 2. Validate target resource and ownership
         resource_name = ""
         resource_type = ""
         target_id: uuid.UUID
@@ -112,7 +108,6 @@ class ShareService:
                 detail="Either file_id or folder_id must be provided.",
             )
 
-        # 3. Check for existing share to avoid duplicate / update existing
         existing_share = db.scalar(
             select(Share)
             .options(joinedload(Share.granter), joinedload(Share.grantee))
@@ -145,7 +140,6 @@ class ShareService:
             db.commit()
             return ShareService._to_share_response(existing_share)
 
-        # 4. Create new Share
         new_share = Share(
             granter_id=granter_id,
             grantee_id=grantee.id,
@@ -157,7 +151,6 @@ class ShareService:
         db.commit()
         db.refresh(new_share)
 
-        # Reload with relationships
         new_share = db.scalar(
             select(Share)
             .options(joinedload(Share.granter), joinedload(Share.grantee))
@@ -229,7 +222,7 @@ class ShareService:
             user_id=user_id,
             action="SHARE_UPDATED",
             resource_type=resource_type,
-            resource_id=target_id,  # type: ignore
+            resource_id=target_id,
             details={
                 "grantee_id": str(share.grantee_id),
                 "role": share.role.value,
@@ -262,7 +255,7 @@ class ShareService:
             user_id=user_id,
             action="SHARE_REVOKED",
             resource_type=resource_type,
-            resource_id=target_id,  # type: ignore
+            resource_id=target_id,
             details={
                 "grantee_id": str(grantee_id),
             },
@@ -436,7 +429,6 @@ class ShareService:
             if file.owner_id == user_id:
                 return True, "OWNER"
 
-            # Check direct share on file
             share = db.scalar(
                 select(Share).where(Share.file_id == file_id, Share.grantee_id == user_id)
             )
@@ -444,7 +436,6 @@ class ShareService:
                 if required_role == ShareRole.VIEWER or share.role == ShareRole.EDITOR:
                     return True, share.role.value
 
-            # Check inherited share from parent folders
             if file.folder_id:
                 return ShareService.check_user_access(
                     db=db,
@@ -463,7 +454,6 @@ class ShareService:
             if folder.owner_id == user_id:
                 return True, "OWNER"
 
-            # Check direct share on folder
             share = db.scalar(
                 select(Share).where(Share.folder_id == folder_id, Share.grantee_id == user_id)
             )
@@ -471,7 +461,6 @@ class ShareService:
                 if required_role == ShareRole.VIEWER or share.role == ShareRole.EDITOR:
                     return True, share.role.value
 
-            # Check parent folders recursively up to root
             current_parent_id = folder.parent_id
             while current_parent_id:
                 parent_folder = db.scalar(select(Folder).where(Folder.id == current_parent_id))

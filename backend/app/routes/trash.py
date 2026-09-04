@@ -1,5 +1,3 @@
-"""API routes for trash listing, bulk restoration, and permanent purge."""
-
 from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -14,7 +12,6 @@ from app.services.trash_service import TrashService
 
 router = APIRouter(prefix="/trash", tags=["Trash & Recovery"])
 
-
 @router.get(
     "",
     response_model=TrashListResponse,
@@ -28,7 +25,6 @@ def list_trash(
 ) -> TrashListResponse:
     """List trash items."""
     return TrashService.list_trash(db=db, user_id=current_user.id)
-
 
 @router.post(
     "/restore-all",
@@ -49,7 +45,6 @@ def restore_all(
         user_id=current_user.id,
         ip_address=ip_address,
     )
-
 
 @router.delete(
     "/empty",

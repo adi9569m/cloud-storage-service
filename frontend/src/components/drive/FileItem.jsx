@@ -1,7 +1,3 @@
-/**
- * File item component rendering in Grid or List layout.
- */
-
 import React from 'react';
 import { Star, Eye } from 'lucide-react';
 import ContextMenu from './ContextMenu';
@@ -14,6 +10,7 @@ export const FileItem = ({
   onSelect,
   onPreview,
   onDownload,
+  onExtract,
   onShare,
   onToggleStar,
   onRename,
@@ -86,6 +83,7 @@ export const FileItem = ({
               isFolder={false}
               onPreview={onPreview}
               onDownload={onDownload}
+              onExtract={onExtract}
               onShare={onShare}
               onToggleStar={onToggleStar}
               onRename={onRename}
@@ -102,7 +100,6 @@ export const FileItem = ({
     );
   }
 
-  // Grid Card View
   return (
     <div
       onClick={() => onSelect?.(file.id)}
@@ -152,6 +149,7 @@ export const FileItem = ({
             isFolder={false}
             onPreview={onPreview}
             onDownload={onDownload}
+            onExtract={onExtract}
             onShare={onShare}
             onToggleStar={onToggleStar}
             onRename={onRename}
