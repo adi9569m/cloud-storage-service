@@ -24,16 +24,16 @@ backend/
 │   │   ├── star.py         # Starred/favorite files & folders
 │   │   └── activity.py     # Audit activity log entity
 │   │
-│   ├── schemas/            # Pydantic validation schemas (Day 2+)
+│   ├── schemas/            # Pydantic validation schemas
 │   │   └── __init__.py
 │   │
-│   ├── routes/             # FastAPI APIRouters (Day 2+)
+│   ├── routes/             # FastAPI APIRouters
 │   │   └── __init__.py
 │   │
-│   ├── services/           # Business logic & external integrations (Day 2+)
+│   ├── services/           # Business logic & external integrations
 │   │   └── __init__.py
 │   │
-│   ├── utils/              # Helper functions (Day 2+)
+│   ├── utils/              # Helper functions
 │   │   └── __init__.py
 │   │
 │   ├── __init__.py

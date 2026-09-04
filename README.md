@@ -4,20 +4,18 @@ A modern, cloud-native, Google Drive-style media and file storage service engine
 
 ---
 
-## 🚀 10-Day Engineering Roadmap Summary
+## ✨ Features & Capabilities
 
-| Phase | Description | Key Deliverables |
-|---|---|---|
-| **Day 1** | **MVP Architecture & Database Models** | Base entities, declarative SQLAlchemy 2.0 schemas, UUID primary keys, and async session management. |
-| **Day 2** | **Authentication & User Management** | Stateless JWT authentication, argon2/bcrypt hashing, login/register flows, and user profile management. |
-| **Day 3** | **Folder Hierarchy & Organization** | Recursive nested tree hierarchies, breadcrumbs traversal, circular-move prevention, and directory management. |
-| **Day 4** | **File Storage & Versioning** | Presigned upload/download pipelines, binary/metadata separation, multi-version tracking, and rollback APIs. |
-| **Day 5** | **Sharing, Collaboration & Trash** | User-to-user RBAC sharing (`Owner`/`Editor`/`Viewer`), tokenized public links, starred favorites, soft deletion & trash bin. |
-| **Day 6** | **Search, Analytics & Batch Operations** | Faceted full-text search, storage quota calculation by MIME category, batch operations (move, delete, star), and preview streaming. |
-| **Day 7** | **Tags, Comments, Maintenance & Security** | Tagging system, threaded file comments, automated background maintenance tasks, rate limiting, and security headers. |
-| **Day 8** | **Frontend Application & Auth Flow** | React 18 SPA (Vite + Tailwind CSS), TanStack Query, AuthContext, Protected Routes, and responsive Google Drive layout. |
-| **Day 9** | **Interactive Drive Explorer & Rich Modals** | Grid/List view explorer, drag-and-drop uploads, context menus, file previewer, version history modal, share dialogs, and public link viewer. |
-| **Day 10** | **Production Readiness & Containerization** | Activity audit trail UI, Recent files view, Settings & Profile hub, system maintenance telemetry, global toast notifications, multi-stage Dockerfiles, Docker Compose, and CI/CD pipelines. |
+- **User Authentication & Security**: Stateless JWT authentication with Argon2/bcrypt password hashing, rate limiting, and security middleware headers.
+- **Hierarchical File Management**: Arbitrary nested folder structures, breadcrumb path traversal, circular-move prevention, and drag-and-drop uploads.
+- **Direct & Presigned Transfers**: Scalable presigned upload/download pipelines decoupling file metadata from binary blob storage.
+- **Multi-Version File History**: Upload new file versions, maintain complete revision history, and restore or download historical snapshots.
+- **Collaboration & Access Control**: Granular user-to-user sharing with RBAC roles (`Owner`, `Editor`, `Viewer`), password-protected public shareable links, and expiration timestamps.
+- **Soft Deletion & Recovery**: Trash bin with one-click restore and automated lifecycle purge retention.
+- **Search & Storage Analytics**: Faceted full-text search across filenames/MIME types, real-time quota calculations, and category breakdowns.
+- **Taxonomy & Discussions**: Custom color-coded tags and threaded comments on files for team collaboration.
+- **Modern React Drive Interface**: Google Drive-inspired UI with grid/list layouts, context menus, audio/video/image inline previews, and global toast notifications.
+- **Containerized Deployment**: Multi-stage Dockerfiles for backend and frontend with Docker Compose orchestration and CI/CD pipelines.
 
 ---
 

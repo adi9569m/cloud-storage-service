@@ -46,13 +46,13 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_KEY: str = "your-supabase-service-role-key"
     SUPABASE_STORAGE_BUCKET: str = "cloud-storage-bucket"
 
-    # Storage Quotas & Limits (Day 6)
+    # Storage Quotas & Limits
     DEFAULT_STORAGE_QUOTA_BYTES: int = 5368709120  # 5 GB
     MAX_BATCH_OPERATION_ITEMS: int = 100
     MAX_ZIP_DOWNLOAD_BYTES: int = 1073741824  # 1 GB
     MAX_PREVIEW_TEXT_BYTES: int = 1048576  # 1 MB
 
-    # Maintenance & Security Settings (Day 7)
+    # Maintenance & Security Settings
     AUTO_TRASH_PURGE_DAYS: int = 30
     RATE_LIMIT_ENABLED: bool = True
     RATE_LIMIT_PER_MINUTE: int = 60

@@ -51,8 +51,8 @@ services:
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - REFRESH_TOKEN_EXPIRE_DAYS=7
       - CORS_ORIGINS=*
-      - SUPABASE_URL=${SUPABASE_URL:-https://placeholder.supabase.co}
-      - SUPABASE_KEY=${SUPABASE_KEY:-placeholder-key}
+      - SUPABASE_URL=${SUPABASE_URL:-https://your-project.supabase.co}
+      - SUPABASE_KEY=${SUPABASE_KEY:-your-supabase-key}
       - STORAGE_BUCKET_NAME=${STORAGE_BUCKET_NAME:-cloud-storage-bucket}
       - RATE_LIMIT_REQUESTS=100
       - RATE_LIMIT_WINDOW_SECONDS=60

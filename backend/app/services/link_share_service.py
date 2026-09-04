@@ -311,7 +311,7 @@ class LinkShareService:
 
         if has_password:
             if not password:
-                # Prompt password
+                # Password required
                 return PublicLinkAccessResponse(
                     token=token,
                     role=link.role,
