@@ -99,35 +99,40 @@ export const FileCommentsDrawer = ({ isOpen, onClose, file }) => {
               </p>
             </div>
           ) : (
-            comments.map((c) => (
-              <div
-                key={c.id}
-                className="group relative rounded-2xl border border-slate-100 bg-slate-50/50 p-3.5 transition-colors hover:bg-slate-50"
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-drive-100 text-drive-700 text-[10px] font-bold">
-                      {c.user_name ? c.user_name.charAt(0).toUpperCase() : 'U'}
-                    </div>
-                    <span className="text-xs font-semibold text-slate-700">
-                      {c.user_name || 'Collaborator'}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-slate-400">{formatDate(c.created_at)}</span>
-                </div>
-                <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap pl-8">
-                  {c.content}
-                </p>
+            comments.map((c) => {
+              const authorName = c.author?.full_name || c.author?.email || c.user_name || 'Collaborator';
+              const initial = authorName.charAt(0).toUpperCase();
 
-                <button
-                  onClick={() => handleDeleteComment(c.id)}
-                  className="absolute top-3 right-3 hidden group-hover:block p-1 text-slate-400 hover:text-red-600"
-                  title="Delete comment"
+              return (
+                <div
+                  key={c.id}
+                  className="group relative rounded-2xl border border-slate-100 bg-slate-50/50 p-3.5 transition-colors hover:bg-slate-50"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-drive-100 text-drive-700 text-[10px] font-bold">
+                        {initial}
+                      </div>
+                      <span className="text-xs font-semibold text-slate-700">
+                        {authorName}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-slate-400">{formatDate(c.created_at)}</span>
+                  </div>
+                  <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap pl-8">
+                    {c.content}
+                  </p>
+
+                  <button
+                    onClick={() => handleDeleteComment(c.id)}
+                    className="absolute top-3 right-3 hidden group-hover:block p-1 text-slate-400 hover:text-red-600"
+                    title="Delete comment"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              );
+            })
           )}
         </div>
 

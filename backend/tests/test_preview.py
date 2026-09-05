@@ -168,3 +168,13 @@ def test_download_folder_zip(client, auth_headers, seed_preview_data):
         namelist = zf.namelist()
         assert "ProjectFolder/sample_video.mp4" in namelist
         assert "ProjectFolder/app.py" in namelist
+
+def test_file_preview_with_query_token(client, test_user, seed_preview_data):
+    """Test preview streaming using ?token= query parameter without Authorization header."""
+    token = create_access_token(subject=str(test_user.id))
+    vid_id = seed_preview_data["video"].id
+    resp = client.get(f"/api/v1/files/{vid_id}/preview?token={token}")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "video/mp4"
+    assert len(resp.content) == len(seed_preview_data["video_bytes"])
+

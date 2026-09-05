@@ -1,6 +1,6 @@
-from typing import Generator
+from typing import Generator, Optional
 import uuid
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 from sqlalchemy.orm import Session
@@ -11,19 +11,23 @@ from app.services.user_service import UserService
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v1/auth/login",
-    auto_error=True,
+    auto_error=False,
 )
 
 def get_current_user(
     db: Session = Depends(get_db),
-    token: str = Depends(oauth2_scheme),
+    header_token: Optional[str] = Depends(oauth2_scheme),
+    query_token: Optional[str] = Query(None, alias="token"),
 ) -> User:
-    """Dependency that extracts and validates the JWT bearer access token."""
+    """Dependency that extracts and validates the JWT bearer access token from header or query param."""
+    token = header_token or query_token
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate authentication credentials.",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    if not token:
+        raise credentials_exception
 
     try:
         payload = decode_token(token)

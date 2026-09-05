@@ -152,6 +152,17 @@ export const fileService = {
     const response = await apiClient.post(`/files/${fileId}/verify-checksum`);
     return response.data;
   },
+
+  async searchFiles(query = '', params = {}) {
+    const response = await apiClient.get('/files/search/query', {
+      params: {
+        query: query || undefined,
+        ...params,
+      },
+    });
+    return response.data?.items || [];
+  },
 };
 
 export default fileService;
+

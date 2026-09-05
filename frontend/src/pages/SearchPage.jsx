@@ -183,7 +183,7 @@ export const SearchPage = () => {
           </div>
 
           {items.map((item) => {
-            const isFolder = item.resource_type === 'FOLDER';
+            const isFolder = item.resource_type?.toLowerCase() === 'folder';
             const iconDetails = isFolder
               ? null
               : getFileIconDetails(item.mime_type, item.name);

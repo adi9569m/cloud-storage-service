@@ -14,6 +14,15 @@ export const starService = {
     });
     return response.data;
   },
+
+  async starItem({ file_id = null, folder_id = null }) {
+    return this.toggleStar({ file_id, folder_id });
+  },
+
+  async unstarItem({ file_id = null, folder_id = null }) {
+    return this.toggleStar({ file_id, folder_id });
+  },
 };
 
 export default starService;
+

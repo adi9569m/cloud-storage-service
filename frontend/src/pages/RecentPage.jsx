@@ -87,8 +87,7 @@ export const RecentPage = () => {
   const handleDownload = async (e, file) => {
     e.stopPropagation();
     try {
-      const { download_url } = await fileService.getFileDownloadUrl(file.id);
-      window.open(download_url, '_blank');
+      await fileService.downloadFile(file.id, file.name);
       toast.success(`Downloading ${file.name}`);
     } catch (err) {
       toast.error('Failed to download file');
@@ -99,7 +98,7 @@ export const RecentPage = () => {
     e.stopPropagation();
     if (window.confirm(`Move "${file.name}" to Trash?`)) {
       try {
-        await fileService.deleteFile(file.id);
+        await fileService.softDelete(file.id);
         toast.success(`Moved ${file.name} to Trash`);
         setFiles((prev) => prev.filter((f) => f.id !== file.id));
       } catch (err) {
@@ -311,16 +310,18 @@ export const RecentPage = () => {
         </div>
       )}
 
-      {previewFile && (
-        <FilePreviewModal
-          file={previewFile}
-          onClose={() => setPreviewFile(null)}
-          onDownload={() => handleDownload({ stopPropagation: () => {} }, previewFile)}
-          onShare={() => setShareTarget({ item: previewFile, isFolder: false })}
-          onViewVersions={() => setVersionTargetFile(previewFile)}
-          onOpenComments={() => setCommentTargetFile(previewFile)}
-        />
-      )}
+      <FilePreviewModal
+        isOpen={Boolean(previewFile)}
+        file={previewFile}
+        onClose={() => setPreviewFile(null)}
+        onToggleStar={(fileId) => {
+          setFiles((prev) =>
+            prev.map((f) => (f.id === fileId ? { ...f, is_starred: !f.is_starred } : f))
+          );
+        }}
+        onShare={() => setShareTarget({ item: previewFile, isFolder: false })}
+        onOpenVersions={() => setVersionTargetFile(previewFile)}
+      />
 
       {shareTarget && (
         <ShareModal
